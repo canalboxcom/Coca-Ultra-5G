@@ -1,0 +1,4501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#d90429">
+
+<title>Coca Ultra 5G</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    background:#f5f5f5;
+    color:#222;
+    min-height:100vh;
+}
+
+button,
+input,
+select{
+    font-family:inherit;
+}
+
+button{
+    cursor:pointer;
+    border:0;
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* ================= AUTH ================= */
+
+#auth{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    background:linear-gradient(135deg,#fff,#ffe7eb);
+}
+
+.auth-box{
+    width:100%;
+    max-width:430px;
+    background:#fff;
+    padding:28px 22px;
+    border-radius:25px;
+    box-shadow:0 15px 45px rgba(0,0,0,.12);
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.logo-circle{
+    width:70px;
+    height:70px;
+    margin:auto;
+    border-radius:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#d90429,#ef233c);
+    color:white;
+    font-size:25px;
+    font-weight:bold;
+}
+
+.logo h1{
+    color:#d90429;
+    font-size:25px;
+    margin-top:12px;
+}
+
+.logo p{
+    color:#777;
+    font-size:13px;
+    margin-top:5px;
+}
+
+.tabs{
+    display:flex;
+    gap:4px;
+    background:#f2f2f2;
+    padding:4px;
+    border-radius:13px;
+    margin-bottom:20px;
+}
+
+.tabs button{
+    flex:1;
+    padding:12px;
+    background:transparent;
+    color:#777;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+.tabs button.active{
+    background:#d90429;
+    color:white;
+}
+
+.field{
+    margin-bottom:14px;
+}
+
+.field label{
+    display:block;
+    margin-bottom:7px;
+    font-size:13px;
+    font-weight:bold;
+    color:#444;
+}
+
+.field input,
+.field select,
+.field textarea{
+    width:100%;
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:13px;
+    background:white;
+    outline:none;
+}
+
+.field input:focus,
+.field select:focus{
+    border-color:#d90429;
+}
+
+.btn{
+    width:100%;
+    padding:14px;
+    border-radius:13px;
+    font-weight:bold;
+    font-size:14px;
+}
+
+.btn.red{
+    color:white;
+    background:linear-gradient(135deg,#d90429,#ef233c);
+}
+
+.btn.light{
+    background:#fff0f2;
+    color:#d90429;
+}
+
+.btn.gray{
+    background:#eee;
+    color:#333;
+}
+
+.btn.blue{
+    background:#1976d2;
+    color:white;
+}
+
+.btn.green{
+    background:#0aa14b;
+    color:white;
+}
+
+/* ================= APP ================= */
+
+#app{
+    display:none;
+    min-height:100vh;
+    padding-bottom:82px;
+}
+
+.topbar{
+    position:sticky;
+    top:0;
+    z-index:20;
+    height:65px;
+    background:#fff;
+    border-bottom:1px solid #eee;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 16px;
+}
+
+.top-title{
+    color:#d90429;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.top-user{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    background:#fff0f2;
+    color:#d90429;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+}
+
+.page{
+    display:none;
+    max-width:700px;
+    margin:auto;
+    padding:20px 15px;
+}
+
+.page.active{
+    display:block;
+}
+
+.section-title{
+    font-size:24px;
+    margin-bottom:6px;
+}
+
+.section-sub{
+    color:#777;
+    margin-bottom:18px;
+}
+
+/* ================= HERO ================= */
+
+.hero{
+    background:linear-gradient(135deg,#d90429,#ef233c);
+    color:white;
+    border-radius:23px;
+    padding:23px;
+    margin-bottom:16px;
+    box-shadow:0 10px 30px rgba(217,4,41,.2);
+}
+
+.hero small{
+    opacity:.9;
+}
+
+.hero-balance{
+    font-size:30px;
+    font-weight:bold;
+    margin:8px 0;
+}
+
+.hero-actions{
+    display:flex;
+    gap:9px;
+    margin-top:16px;
+}
+
+.hero-actions button{
+    flex:1;
+    padding:12px;
+    border-radius:11px;
+    font-weight:bold;
+}
+
+.white{
+    background:white;
+    color:#d90429;
+}
+
+.transparent{
+    background:rgba(255,255,255,.15);
+    color:white;
+    border:1px solid rgba(255,255,255,.4);
+}
+
+/* ================= QUICK CARDS ================= */
+
+.cards-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:22px;
+}
+
+.quick-card{
+    background:white;
+    border-radius:18px;
+    padding:16px;
+    box-shadow:0 5px 20px rgba(0,0,0,.06);
+}
+
+.quick-icon{
+    width:44px;
+    height:44px;
+    border-radius:13px;
+    background:#fff0f2;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:21px;
+    margin-bottom:10px;
+}
+
+.quick-card strong{
+    display:block;
+}
+
+.quick-card small{
+    display:block;
+    color:#777;
+    margin-top:5px;
+}
+
+/* ================= PLANS ================= */
+
+.plan{
+    background:white;
+    padding:18px;
+    border-radius:19px;
+    margin-bottom:13px;
+    box-shadow:0 5px 20px rgba(0,0,0,.06);
+}
+
+.plan-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:13px;
+}
+
+.plan-name{
+    color:#d90429;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.vip{
+    padding:5px 9px;
+    background:#fff0f2;
+    color:#d90429;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:bold;
+}
+
+.plan-row{
+    display:flex;
+    justify-content:space-between;
+    padding:6px 0;
+    font-size:13px;
+}
+
+.plan-row span{
+    color:#777;
+}
+
+/* ================= PAYMENT METHODS ================= */
+
+.payment-method{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    background:white;
+    padding:15px;
+    border-radius:17px;
+    margin-bottom:11px;
+    border:2px solid transparent;
+    box-shadow:0 5px 18px rgba(0,0,0,.05);
+}
+
+.payment-method.selected{
+    border-color:#d90429;
+}
+
+.operator-icon{
+    width:48px;
+    height:48px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-weight:bold;
+    font-size:10px;
+}
+
+.wave{
+    background:#1689ff;
+}
+
+.orange{
+    background:#ff7900;
+}
+
+.mtn{
+    background:#ffd400;
+    color:#111;
+}
+
+.moov{
+    background:linear-gradient(135deg,#008d5a,#0072bc);
+}
+
+.payment-method-info{
+    flex:1;
+}
+
+.payment-method-info strong{
+    display:block;
+}
+
+.payment-method-info small{
+    color:#777;
+}
+
+.radio{
+    width:21px;
+    height:21px;
+    border:2px solid #ccc;
+    border-radius:50%;
+}
+
+.payment-method.selected .radio{
+    border:6px solid #d90429;
+}
+
+/* ================= PAYMENT ================= */
+
+.payment-box{
+    background:white;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 6px 22px rgba(0,0,0,.06);
+}
+
+.info-box{
+    background:#f5f5f5;
+    padding:14px;
+    border-radius:13px;
+    font-size:13px;
+    line-height:1.6;
+    margin-bottom:15px;
+}
+
+.warning{
+    background:#fff7df;
+    color:#775c00;
+}
+
+.payment-number{
+    text-align:center;
+    padding:18px;
+    background:#fff0f2;
+    border:1px dashed #d90429;
+    border-radius:15px;
+    margin:15px 0;
+}
+
+.payment-number small{
+    display:block;
+    color:#777;
+    margin-bottom:8px;
+}
+
+.payment-number strong{
+    display:block;
+    color:#d90429;
+    font-size:21px;
+}
+
+/* ================= HISTORY ================= */
+
+.history-tabs{
+    display:flex;
+    gap:7px;
+    overflow:auto;
+    margin-bottom:15px;
+}
+
+.history-tabs button{
+    white-space:nowrap;
+    padding:9px 13px;
+    border-radius:20px;
+    background:#eee;
+}
+
+.history-tabs button.active{
+    background:#d90429;
+    color:white;
+}
+
+.history-item{
+    background:white;
+    padding:16px;
+    border-radius:17px;
+    margin-bottom:10px;
+    box-shadow:0 5px 18px rgba(0,0,0,.05);
+}
+
+.history-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:8px;
+}
+
+.history-details{
+    color:#777;
+    font-size:12px;
+    line-height:1.7;
+}
+
+.status{
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:bold;
+}
+
+.status.pending{
+    background:#fff3d1;
+    color:#806000;
+}
+
+.status.received{
+    background:#e8f8ee;
+    color:#08763b;
+}
+
+/* ================= PURCHASE ================= */
+
+.purchase-card{
+    background:white;
+    border-radius:20px;
+    padding:18px;
+    margin-bottom:13px;
+    box-shadow:0 5px 20px rgba(0,0,0,.06);
+}
+
+.purchase-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.purchase-title{
+    color:#d90429;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.purchase-icon{
+    width:46px;
+    height:46px;
+    border-radius:14px;
+    background:#fff0f2;
+    color:#d90429;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+}
+
+.purchase-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+}
+
+.purchase-data{
+    background:#f7f7f7;
+    padding:10px;
+    border-radius:11px;
+}
+
+.purchase-data small{
+    display:block;
+    color:#888;
+    font-size:10px;
+    margin-bottom:4px;
+}
+
+.purchase-data strong{
+    font-size:13px;
+}
+
+.received-box{
+    margin-top:12px;
+    padding:11px;
+    border-radius:12px;
+    background:#eaf8ef;
+    color:#08763b;
+    font-size:12px;
+    font-weight:bold;
+}
+
+/* ================= CARD ================= */
+
+.bank-card{
+    position:relative;
+    min-height:205px;
+    border-radius:25px;
+    padding:23px;
+    color:white;
+    overflow:hidden;
+    background:linear-gradient(135deg,#151515,#454545);
+    box-shadow:0 12px 30px rgba(0,0,0,.18);
+    margin-bottom:18px;
+}
+
+.bank-card:after{
+    content:"";
+    position:absolute;
+    width:210px;
+    height:210px;
+    border-radius:50%;
+    right:-85px;
+    top:-70px;
+    background:rgba(255,255,255,.07);
+}
+
+.bank-logo{
+    position:relative;
+    z-index:2;
+    font-size:17px;
+    font-weight:bold;
+}
+
+.card-chip{
+    position:relative;
+    z-index:2;
+    width:48px;
+    height:34px;
+    background:#d7ba67;
+    border-radius:7px;
+    margin-top:25px;
+}
+
+.card-number{
+    position:relative;
+    z-index:2;
+    font-size:20px;
+    letter-spacing:2px;
+    margin-top:25px;
+}
+
+.card-bottom{
+    position:relative;
+    z-index:2;
+    display:flex;
+    justify-content:space-between;
+    margin-top:22px;
+    font-size:12px;
+}
+
+.linked-info{
+    background:white;
+    border-radius:19px;
+    padding:17px;
+    box-shadow:0 5px 20px rgba(0,0,0,.06);
+    margin-bottom:13px;
+}
+
+.linked-row{
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    padding:10px 0;
+    border-bottom:1px solid #eee;
+    font-size:13px;
+}
+
+.linked-row:last-child{
+    border-bottom:0;
+}
+
+.linked-row span{
+    color:#777;
+}
+
+.linked-row strong{
+    text-align:right;
+    word-break:break-word;
+}
+
+.account-status{
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:20px;
+    background:#e9f8ef;
+    color:#08763b;
+    font-size:11px;
+}
+
+/* ================= TEAM ================= */
+
+.ref-box{
+    background:linear-gradient(135deg,#d90429,#ef233c);
+    color:white;
+    border-radius:21px;
+    padding:20px;
+}
+
+.ref-code{
+    text-align:center;
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.3);
+    padding:13px;
+    border-radius:12px;
+    font-size:22px;
+    font-weight:bold;
+    letter-spacing:2px;
+    margin:12px 0;
+}
+
+.ref-link{
+    background:white;
+    color:#333;
+    padding:11px;
+    border-radius:10px;
+    font-size:11px;
+    word-break:break-all;
+}
+
+/* ================= SUPPORT ================= */
+
+.whatsapp{
+    display:block;
+    background:#1aae5d;
+    color:white;
+    padding:17px;
+    border-radius:16px;
+    text-align:center;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+/* ================= EMPTY ================= */
+
+.empty{
+    background:white;
+    border-radius:18px;
+    padding:30px;
+    text-align:center;
+    color:#777;
+}
+
+/* ================= BOTTOM ================= */
+
+.bottom-nav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    height:70px;
+    background:white;
+    border-top:1px solid #eee;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    z-index:50;
+}
+
+.nav-btn{
+    flex:1;
+    background:transparent;
+    color:#888;
+    font-size:10px;
+    text-align:center;
+}
+
+.nav-btn span{
+    display:block;
+    font-size:20px;
+    margin-bottom:2px;
+}
+
+.nav-btn.active{
+    color:#d90429;
+}
+
+/* ================= TOAST ================= */
+
+#toast{
+    position:fixed;
+    left:50%;
+    bottom:85px;
+    transform:translateX(-50%) translateY(20px);
+    background:#222;
+    color:white;
+    padding:12px 17px;
+    border-radius:12px;
+    opacity:0;
+    transition:.3s;
+    z-index:100;
+    max-width:90%;
+    text-align:center;
+    font-size:13px;
+}
+
+#toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+}
+
+@media(max-width:420px){
+
+    .hero-balance{
+        font-size:27px;
+    }
+
+    .purchase-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+
+<!-- =====================================================
+AUTHENTIFICATION
+===================================================== -->
+
+<div id="auth">
+
+<div class="auth-box">
+
+<div class="logo">
+
+<div class="logo-circle">
+CU
+</div>
+
+<h1>Coca Ultra 5G</h1>
+
+<p>
+Votre espace financier
+</p>
+
+</div>
+
+
+<div class="tabs">
+
+<button
+id="loginTab"
+class="active"
+onclick="showAuth('login')">
+
+Connexion
+
+</button>
+
+<button
+id="registerTab"
+onclick="showAuth('register')">
+
+Inscription
+
+</button>
+
+</div>
+
+
+<div id="loginForm">
+
+<div class="field">
+
+<label>
+E-mail ou téléphone
+</label>
+
+<input
+id="loginContact"
+type="text"
+placeholder="E-mail ou téléphone">
+
+</div>
+
+
+<div class="field">
+
+<label>
+Mot de passe
+</label>
+
+<input
+id="loginPassword"
+type="password"
+placeholder="Mot de passe">
+
+</div>
+
+
+<button
+class="btn red"
+onclick="login()">
+
+SE CONNECTER
+
+</button>
+
+</div>
+
+
+<div
+id="registerForm"
+class="hidden">
+
+<div class="field">
+
+<label>
+Nom complet
+</label>
+
+<input
+id="regName"
+type="text"
+placeholder="Votre nom complet">
+
+</div>
+
+
+<div class="field">
+
+<label>
+E-mail
+</label>
+
+<input
+id="regEmail"
+type="email"
+placeholder="exemple@gmail.com">
+
+</div>
+
+
+<div class="field">
+
+<label>
+Numéro de téléphone
+</label>
+
+<input
+id="regPhone"
+type="tel"
+placeholder="+225...">
+
+</div>
+
+
+<div class="field">
+
+<label>
+Mot de passe
+</label>
+
+<input
+id="regPassword"
+type="password"
+placeholder="Votre mot de passe">
+
+</div>
+
+
+<div class="field">
+
+<label>
+Code parrain
+</label>
+
+<input
+id="regRef"
+type="text"
+value="FPTWBM">
+
+</div>
+
+
+<button
+class="btn red"
+onclick="register()">
+
+CRÉER MON COMPTE
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+APPLICATION
+===================================================== -->
+
+<div id="app">
+
+
+<div class="topbar">
+
+<div class="top-title">
+Coca Ultra 5G
+</div>
+
+<div
+class="top-user"
+id="topUser">
+
+U
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+ACCUEIL
+===================================================== -->
+
+<section
+id="homePage"
+class="page active">
+
+
+<div class="hero">
+
+<small>
+Mon solde disponible
+</small>
+
+<div
+class="hero-balance"
+id="homeBalance">
+
+0 FCFA
+
+</div>
+
+<small id="homeUserName">
+Bienvenue
+</small>
+
+
+<div class="hero-actions">
+
+<button
+class="white"
+onclick="openPage('rechargePage')">
+
+＋ Recharger
+
+</button>
+
+
+<button
+class="transparent"
+onclick="openPage('withdrawPage')">
+
+Retirer
+
+</button>
+
+</div>
+
+</div>
+
+
+<div class="cards-grid">
+
+
+<div
+class="quick-card"
+onclick="openPage('investPage')">
+
+<div class="quick-icon">
+📈
+</div>
+
+<strong>
+Investir
+</strong>
+
+<small>
+Voir les plans
+</small>
+
+</div>
+
+
+<div
+class="quick-card"
+onclick="openPage('purchasesPage')">
+
+<div class="quick-icon">
+🛍️
+</div>
+
+<strong>
+Mes achats
+</strong>
+
+<small>
+Mes investissements
+</small>
+
+</div>
+
+
+<div
+class="quick-card"
+onclick="openPage('rechargeHistoryPage')">
+
+<div class="quick-icon">
+💳
+</div>
+
+<strong>
+Recharges
+</strong>
+
+<small>
+Historique
+</small>
+
+</div>
+
+
+<div
+class="quick-card"
+onclick="openPage('withdrawHistoryPage')">
+
+<div class="quick-icon">
+💸
+</div>
+
+<strong>
+Retraits
+</strong>
+
+<small>
+Historique
+</small>
+
+</div>
+
+
+<div
+class="quick-card"
+onclick="openPage('cardPage')">
+
+<div class="quick-icon">
+💳
+</div>
+
+<strong>
+Ma carte bancaire
+</strong>
+
+<small>
+Compte lié
+</small>
+
+</div>
+
+
+<div
+class="quick-card"
+onclick="openPage('linkAccountPage')">
+
+<div class="quick-icon">
+🔗
+</div>
+
+<strong>
+Lier votre compte
+</strong>
+
+<small>
+Wave, Orange, MTN, Moov
+</small>
+
+</div>
+
+
+<div
+class="quick-card"
+onclick="openPage('teamPage')">
+
+<div class="quick-icon">
+👥
+</div>
+
+<strong>
+Mon équipe
+</strong>
+
+<small>
+Parrainage 10 %
+</small>
+
+</div>
+
+
+<div
+class="quick-card"
+onclick="openPage('historyPage')">
+
+<div class="quick-icon">
+📋
+</div>
+
+<strong>
+Historique
+</strong>
+
+<small>
+Toutes opérations
+</small>
+
+</div>
+
+</div>
+
+
+<h2 class="section-title">
+Investissements
+</h2>
+
+<p class="section-sub">
+Choisissez votre plan
+</p>
+
+
+<div id="homePlans"></div>
+
+</section>
+
+
+<!-- =====================================================
+INVESTIR
+===================================================== -->
+
+<section
+id="investPage"
+class="page">
+
+<h2 class="section-title">
+Investir
+</h2>
+
+<p class="section-sub">
+Sélectionnez un plan.
+</p>
+
+
+<div id="investPlans"></div>
+
+
+<button
+class="btn light"
+onclick="openPage('purchasesPage')"
+style="margin-top:4px;">
+
+🛍️ VOIR MES ACHATS
+
+</button>
+
+</section>
+
+
+<!-- =====================================================
+ACHATS
+===================================================== -->
+
+<section
+id="purchasesPage"
+class="page">
+
+<h2 class="section-title">
+Mes achats
+</h2>
+
+<p class="section-sub">
+Vos investissements enregistrés.
+</p>
+
+
+<div id="purchasesList"></div>
+
+</section>
+
+
+<!-- =====================================================
+RECHARGE
+===================================================== -->
+
+<section
+id="rechargePage"
+class="page">
+
+<h2 class="section-title">
+Recharger
+</h2>
+
+<p class="section-sub">
+Choisissez votre moyen de paiement.
+</p>
+
+
+<div
+class="payment-method"
+id="method-wave"
+onclick="selectMethod('WAVE')">
+
+<div class="operator-icon wave">
+WAVE
+</div>
+
+<div class="payment-method-info">
+
+<strong>
+Wave Money
+</strong>
+
+<small>
+Paiement mobile
+</small>
+
+</div>
+
+<div class="radio"></div>
+
+</div>
+
+
+<div
+class="payment-method"
+id="method-orange"
+onclick="selectMethod('ORANGE')">
+
+<div class="operator-icon orange">
+OM
+</div>
+
+<div class="payment-method-info">
+
+<strong>
+Orange Money
+</strong>
+
+<small>
+Paiement mobile
+</small>
+
+</div>
+
+<div class="radio"></div>
+
+</div>
+
+
+<div
+class="payment-method"
+id="method-mtn"
+onclick="selectMethod('MTN')">
+
+<div class="operator-icon mtn">
+MTN
+</div>
+
+<div class="payment-method-info">
+
+<strong>
+MTN Money
+</strong>
+
+<small>
+Paiement mobile
+</small>
+
+</div>
+
+<div class="radio"></div>
+
+</div>
+
+
+<div
+class="payment-method"
+id="method-moov"
+onclick="selectMethod('MOOV')">
+
+<div class="operator-icon moov">
+MOOV
+</div>
+
+<div class="payment-method-info">
+
+<strong>
+Moov Money
+</strong>
+
+<small>
+Paiement mobile
+</small>
+
+</div>
+
+<div class="radio"></div>
+
+</div>
+
+
+<div
+class="field"
+style="margin-top:18px;">
+
+<label>
+Montant de la recharge
+</label>
+
+<input
+id="rechargeAmount"
+type="number"
+min="100"
+placeholder="Ex : 10000">
+
+</div>
+
+
+<button
+class="btn red"
+onclick="openPayment()">
+
+CONTINUER
+
+</button>
+
+
+<button
+class="btn light"
+onclick="openPage('rechargeHistoryPage')"
+style="margin-top:10px;">
+
+📋 HISTORIQUE DES RECHARGES
+
+</button>
+
+</section>
+
+
+<!-- =====================================================
+PAIEMENT
+===================================================== -->
+
+<section
+id="paymentPage"
+class="page">
+
+<h2 class="section-title">
+Effectuer le paiement
+</h2>
+
+<p class="section-sub">
+Suivez les instructions.
+</p>
+
+
+<div class="payment-box">
+
+
+<div class="info-box">
+
+<strong>
+Moyen :
+</strong>
+
+<span id="selectedMethodText">
+-
+</span>
+
+<br>
+
+<strong>
+Montant :
+</strong>
+
+<span id="selectedAmountText">
+0 FCFA
+</span>
+
+</div>
+
+
+<div class="payment-number">
+
+<small>
+Effectuez le paiement sur ce numéro
+</small>
+
+<strong id="paymentNumber">
++225 07 97 24 26 16
+</strong>
+
+
+<button
+class="btn blue"
+onclick="copyPaymentNumber()"
+style="margin-top:12px;">
+
+📋 COPIER LE NUMÉRO
+
+</button>
+
+</div>
+
+
+<div class="field">
+
+<label>
+Votre numéro utilisé pour le paiement
+</label>
+
+<input
+id="customerPaymentPhone"
+type="tel"
+placeholder="+225...">
+
+</div>
+
+
+<div class="field">
+
+<label>
+Identifiant / ID de transaction
+</label>
+
+<input
+id="transactionId"
+type="text"
+placeholder="Identifiant de transaction">
+
+</div>
+
+
+<div class="info-box warning">
+
+Après le paiement, renseignez les informations
+demandées puis confirmez votre demande.
+
+<br><br>
+
+Votre recharge reste
+<strong>En attente</strong>
+jusqu'à sa vérification.
+
+</div>
+
+
+<button
+class="btn red"
+onclick="confirmRecharge()">
+
+CONFIRMER MON PAIEMENT
+
+</button>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+RETRAIT
+===================================================== -->
+
+<section
+id="withdrawPage"
+class="page">
+
+<h2 class="section-title">
+Retrait
+</h2>
+
+<p class="section-sub">
+Effectuez une demande de retrait.
+</p>
+
+
+<div class="info-box">
+
+<strong>
+Solde disponible :
+</strong>
+
+<span id="withdrawBalance">
+0 FCFA
+</span>
+
+</div>
+
+
+<div class="field">
+
+<label>
+Méthode
+</label>
+
+<select id="withdrawMethod">
+
+<option value="WAVE">
+Wave
+</option>
+
+<option value="ORANGE">
+Orange Money
+</option>
+
+<option value="MTN">
+MTN Money
+</option>
+
+<option value="MOOV">
+Moov Money
+</option>
+
+</select>
+
+</div>
+
+
+<div class="field">
+
+<label>
+Numéro
+</label>
+
+<input
+id="withdrawPhone"
+type="tel"
+placeholder="+225...">
+
+</div>
+
+
+<div class="field">
+
+<label>
+Montant
+</label>
+
+<input
+id="withdrawAmount"
+type="number"
+placeholder="Ex : 5000">
+
+</div>
+
+
+<button
+class="btn red"
+onclick="submitWithdrawal()">
+
+DEMANDER LE RETRAIT
+
+</button>
+
+
+<button
+class="btn light"
+onclick="openPage('withdrawHistoryPage')"
+style="margin-top:10px;">
+
+📋 HISTORIQUE DES RETRAITS
+
+</button>
+
+</section>
+
+
+<!-- =====================================================
+HISTORIQUE GENERAL
+===================================================== -->
+
+<section
+id="historyPage"
+class="page">
+
+<h2 class="section-title">
+Historique
+</h2>
+
+<p class="section-sub">
+Toutes vos opérations.
+</p>
+
+
+<div class="history-tabs">
+
+<button
+id="allHistTab"
+class="active"
+onclick="filterHistory('all')">
+
+Tout
+
+</button>
+
+
+<button
+id="rechargeHistTab"
+onclick="filterHistory('recharge')">
+
+Recharges
+
+</button>
+
+
+<button
+id="withdrawHistTab"
+onclick="filterHistory('withdraw')">
+
+Retraits
+
+</button>
+
+</div>
+
+
+<div id="historyList"></div>
+
+</section>
+
+
+<!-- =====================================================
+HISTORIQUE RECHARGEMENTS
+===================================================== -->
+
+<section
+id="rechargeHistoryPage"
+class="page">
+
+<h2 class="section-title">
+Historique des rechargements
+</h2>
+
+<p class="section-sub">
+Toutes vos demandes de recharge.
+</p>
+
+
+<div id="rechargeHistoryList"></div>
+
+</section>
+
+
+<!-- =====================================================
+HISTORIQUE RETRAITS
+===================================================== -->
+
+<section
+id="withdrawHistoryPage"
+class="page">
+
+<h2 class="section-title">
+Historique des retraits
+</h2>
+
+<p class="section-sub">
+Toutes vos demandes de retrait.
+</p>
+
+
+<div id="withdrawHistoryList"></div>
+
+</section>
+
+
+<!-- =====================================================
+EQUIPE
+===================================================== -->
+
+<section
+id="teamPage"
+class="page">
+
+<h2 class="section-title">
+Mon équipe
+</h2>
+
+<p class="section-sub">
+Invitez des membres avec votre lien.
+</p>
+
+
+<div class="ref-box">
+
+<small>
+Votre code parrain
+</small>
+
+<div class="ref-code">
+FPTWBM
+</div>
+
+
+<div
+class="ref-link"
+id="refLink">
+
+https://coca-ultra-coca-ultra.vercel.app/index.html?ref=FPTWBM
+
+</div>
+
+
+<button
+class="btn"
+onclick="copyReferral()"
+style="background:white;color:#d90429;margin-top:12px;">
+
+📋 COPIER LE LIEN
+
+</button>
+
+
+<button
+class="btn"
+onclick="shareReferral()"
+style="background:rgba(255,255,255,.15);color:white;margin-top:8px;">
+
+📤 PARTAGER
+
+</button>
+
+</div>
+
+
+<div
+class="quick-card"
+style="margin-top:15px;">
+
+<div class="quick-icon">
+💰
+</div>
+
+<strong>
+Commission de parrainage : 10 %
+</strong>
+
+<p
+style="font-size:13px;color:#777;margin-top:7px;">
+
+Selon les conditions du programme.
+
+</p>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+MA CARTE BANCAIRE
+===================================================== -->
+
+<section
+id="cardPage"
+class="page">
+
+<h2 class="section-title">
+Ma carte bancaire
+</h2>
+
+<p class="section-sub">
+Les informations de votre compte lié.
+</p>
+
+
+<div class="bank-card">
+
+<div class="bank-logo">
+COCA ULTRA
+</div>
+
+<div class="card-chip"></div>
+
+
+<div
+class="card-number"
+id="displayCardNumber">
+
+•••• •••• •••• ••••
+
+</div>
+
+
+<div class="card-bottom">
+
+<span id="displayCardName">
+COMPTE NON LIÉ
+</span>
+
+<span id="displayCardMethod">
+-
+</span>
+
+</div>
+
+</div>
+
+
+<div id="linkedAccountDisplay"></div>
+
+</section>
+
+
+<!-- =====================================================
+LIER COMPTE
+===================================================== -->
+
+<section
+id="linkAccountPage"
+class="page">
+
+<h2 class="section-title">
+Lier votre compte
+</h2>
+
+<p class="section-sub">
+Choisissez une méthode puis renseignez votre nom
+et votre numéro.
+</p>
+
+
+<h3 style="margin-bottom:12px;">
+Choisir une méthode
+</h3>
+
+
+<div
+class="payment-method"
+id="link-method-wave"
+onclick="selectLinkMethod('WAVE')">
+
+<div class="operator-icon wave">
+WAVE
+</div>
+
+<div class="payment-method-info">
+
+<strong>
+Wave Money
+</strong>
+
+<small>
+Lier mon numéro Wave
+</small>
+
+</div>
+
+<div class="radio"></div>
+
+</div>
+
+
+<div
+class="payment-method"
+id="link-method-orange"
+onclick="selectLinkMethod('ORANGE')">
+
+<div class="operator-icon orange">
+OM
+</div>
+
+<div class="payment-method-info">
+
+<strong>
+Orange Money
+</strong>
+
+<small>
+Lier mon numéro Orange Money
+</small>
+
+</div>
+
+<div class="radio"></div>
+
+</div>
+
+
+<div
+class="payment-method"
+id="link-method-mtn"
+onclick="selectLinkMethod('MTN')">
+
+<div class="operator-icon mtn">
+MTN
+</div>
+
+<div class="payment-method-info">
+
+<strong>
+MTN Money
+</strong>
+
+<small>
+Lier mon numéro MTN Money
+</small>
+
+</div>
+
+<div class="radio"></div>
+
+</div>
+
+
+<div
+class="payment-method"
+id="link-method-moov"
+onclick="selectLinkMethod('MOOV')">
+
+<div class="operator-icon moov">
+MOOV
+</div>
+
+<div class="payment-method-info">
+
+<strong>
+Moov Money
+</strong>
+
+<small>
+Lier mon numéro Moov Money
+</small>
+
+</div>
+
+<div class="radio"></div>
+
+</div>
+
+
+<div
+class="field"
+style="margin-top:18px;">
+
+<label>
+Nom complet
+</label>
+
+<input
+id="linkedName"
+type="text"
+placeholder="Ex : Konan Nestor">
+
+</div>
+
+
+<div class="field">
+
+<label>
+Numéro de téléphone
+</label>
+
+<input
+id="linkedPhone"
+type="tel"
+placeholder="+225 07 XX XX XX XX">
+
+</div>
+
+
+<button
+class="btn red"
+onclick="saveLinkedAccount()">
+
+✓ LIER MON COMPTE
+
+</button>
+
+</section>
+
+
+<!-- =====================================================
+COMPTE
+===================================================== -->
+
+<section
+id="accountPage"
+class="page">
+
+<h2 class="section-title">
+Mon compte
+</h2>
+
+<p class="section-sub">
+Vos informations personnelles.
+</p>
+
+
+<div class="linked-info">
+
+
+<div class="linked-row">
+
+<span>
+Nom
+</span>
+
+<strong id="accountName">
+-
+</strong>
+
+</div>
+
+
+<div class="linked-row">
+
+<span>
+E-mail
+</span>
+
+<strong id="accountEmail">
+-
+</strong>
+
+</div>
+
+
+<div class="linked-row">
+
+<span>
+Téléphone
+</span>
+
+<strong id="accountPhone">
+-
+</strong>
+
+</div>
+
+</div>
+
+
+<button
+class="btn red"
+onclick="openPage('linkAccountPage')">
+
+🔗 LIER VOTRE COMPTE
+
+</button>
+
+
+<button
+class="btn light"
+onclick="openPage('cardPage')"
+style="margin-top:10px;">
+
+💳 MA CARTE BANCAIRE
+
+</button>
+
+
+<button
+class="btn light"
+onclick="openPage('purchasesPage')"
+style="margin-top:10px;">
+
+🛍️ MES ACHATS
+
+</button>
+
+
+<button
+class="btn light"
+onclick="openPage('rechargeHistoryPage')"
+style="margin-top:10px;">
+
+💳 HISTORIQUE DES RECHARGES
+
+</button>
+
+
+<button
+class="btn light"
+onclick="openPage('withdrawHistoryPage')"
+style="margin-top:10px;">
+
+💸 HISTORIQUE DES RETRAITS
+
+</button>
+
+
+<button
+class="btn light"
+onclick="openPage('supportPage')"
+style="margin-top:10px;">
+
+💬 SERVICE CLIENT
+
+</button>
+
+
+<button
+class="btn red"
+onclick="logout()"
+style="margin-top:10px;">
+
+🚪 DÉCONNEXION
+
+</button>
+
+</section>
+
+
+<!-- =====================================================
+SERVICE CLIENT
+===================================================== -->
+
+<section
+id="supportPage"
+class="page">
+
+<h2 class="section-title">
+Service client
+</h2>
+
+<p class="section-sub">
+Contactez directement le service client.
+</p>
+
+
+<div class="quick-card">
+
+<div class="quick-icon">
+💬
+</div>
+
+<strong>
+Assistance WhatsApp
+</strong>
+
+<p
+style="color:#777;font-size:13px;margin-top:8px;">
+
+Pour toute question concernant votre compte,
+contactez le service client.
+
+</p>
+
+</div>
+
+
+<a
+class="whatsapp"
+href="https://wa.me/message/HBKQAR7KVGKUH1"
+target="_blank">
+
+💬 CONTACTER SUR WHATSAPP
+
+</a>
+
+</section>
+
+
+<!-- =====================================================
+BOTTOM NAVIGATION
+===================================================== -->
+
+<div class="bottom-nav">
+
+
+<button
+class="nav-btn active"
+id="navHome"
+onclick="openPage('homePage')">
+
+<span>⌂</span>
+
+Accueil
+
+</button>
+
+
+<button
+class="nav-btn"
+id="navInvest"
+onclick="openPage('investPage')">
+
+<span>📈</span>
+
+Investir
+
+</button>
+
+
+<button
+class="nav-btn"
+id="navRecharge"
+onclick="openPage('rechargePage')">
+
+<span>＋</span>
+
+Recharge
+
+</button>
+
+
+<button
+class="nav-btn"
+id="navTeam"
+onclick="openPage('teamPage')">
+
+<span>👥</span>
+
+Équipe
+
+</button>
+
+
+<button
+class="nav-btn"
+id="navAccount"
+onclick="openPage('accountPage')">
+
+<span>👤</span>
+
+Compte
+
+</button>
+
+</div>
+
+</div>
+
+
+<div id="toast"></div>
+
+
+<script>
+
+/* =====================================================
+CONFIGURATION
+===================================================== */
+
+const PAYMENT_NUMBER =
+"+225 07 97 24 26 16";
+
+const REFERRAL_CODE =
+"FPTWBM";
+
+const REFERRAL_LINK =
+"https://coca-ultra-coca-ultra.vercel.app/index.html?ref=FPTWBM";
+
+
+let selectedMethod = "";
+
+let selectedRechargeAmount = 0;
+
+let selectedLinkMethod = "";
+
+
+/* =====================================================
+PLANS
+===================================================== */
+
+const plans = [
+
+{
+id:"VIP1",
+name:"VIP 1",
+amount:5000,
+daily:1500,
+days:31
+},
+
+{
+id:"VIP2",
+name:"VIP 2",
+amount:10000,
+daily:3000,
+days:31
+},
+
+{
+id:"VIP3",
+name:"VIP 3",
+amount:20000,
+daily:4000,
+days:31
+},
+
+{
+id:"VIP5",
+name:"VIP 5",
+amount:50000,
+daily:6000,
+days:31
+}
+
+];
+
+
+/* =====================================================
+USER
+===================================================== */
+
+function getUser(){
+
+return JSON.parse(
+localStorage.getItem("cocaUser") || "null"
+);
+
+}
+
+
+function saveUser(user){
+
+localStorage.setItem(
+"cocaUser",
+JSON.stringify(user)
+);
+
+}
+
+
+/* =====================================================
+RECHARGES
+===================================================== */
+
+function getRechargeHistory(){
+
+return JSON.parse(
+localStorage.getItem("rechargeHistory") || "[]"
+);
+
+}
+
+
+function saveRechargeHistory(data){
+
+localStorage.setItem(
+"rechargeHistory",
+JSON.stringify(data)
+);
+
+}
+
+
+/* =====================================================
+RETRAITS
+===================================================== */
+
+function getWithdrawHistory(){
+
+return JSON.parse(
+localStorage.getItem("withdrawHistory") || "[]"
+);
+
+}
+
+
+function saveWithdrawHistory(data){
+
+localStorage.setItem(
+"withdrawHistory",
+JSON.stringify(data)
+);
+
+}
+
+
+/* =====================================================
+ACHATS / INVESTISSEMENTS
+===================================================== */
+
+function getPurchases(){
+
+return JSON.parse(
+localStorage.getItem("cocaPurchases") || "[]"
+);
+
+}
+
+
+function savePurchases(data){
+
+localStorage.setItem(
+"cocaPurchases",
+JSON.stringify(data)
+);
+
+}
+
+
+/* =====================================================
+AUTH
+===================================================== */
+
+function showAuth(type){
+
+if(type==="login"){
+
+document
+.getElementById("loginForm")
+.classList.remove("hidden");
+
+document
+.getElementById("registerForm")
+.classList.add("hidden");
+
+document
+.getElementById("loginTab")
+.classList.add("active");
+
+document
+.getElementById("registerTab")
+.classList.remove("active");
+
+}else{
+
+document
+.getElementById("loginForm")
+.classList.add("hidden");
+
+document
+.getElementById("registerForm")
+.classList.remove("hidden");
+
+document
+.getElementById("loginTab")
+.classList.remove("active");
+
+document
+.getElementById("registerTab")
+.classList.add("active");
+
+}
+
+}
+
+
+function register(){
+
+const name =
+document.getElementById("regName")
+.value.trim();
+
+const email =
+document.getElementById("regEmail")
+.value.trim();
+
+const phone =
+document.getElementById("regPhone")
+.value.trim();
+
+const password =
+document.getElementById("regPassword")
+.value;
+
+const ref =
+document.getElementById("regRef")
+.value.trim();
+
+
+if(!name || !email || !phone || !password){
+
+toast(
+"Veuillez remplir tous les champs."
+);
+
+return;
+
+}
+
+
+const user = {
+
+id:"USER-"+Date.now(),
+
+name:name,
+
+email:email,
+
+phone:phone,
+
+password:password,
+
+ref:ref || REFERRAL_CODE,
+
+balance:0,
+
+linkedAccount:null,
+
+createdAt:new Date().toISOString()
+
+};
+
+
+saveUser(user);
+
+
+toast(
+"Compte créé avec succès."
+);
+
+
+showAuth("login");
+
+
+document.getElementById(
+"loginContact"
+).value=email;
+
+}
+
+
+function login(){
+
+const contact =
+document.getElementById(
+"loginContact"
+).value.trim();
+
+const password =
+document.getElementById(
+"loginPassword"
+).value;
+
+const user =
+getUser();
+
+
+if(!user){
+
+toast(
+"Aucun compte trouvé."
+);
+
+return;
+
+}
+
+
+if(
+(contact!==user.email &&
+contact!==user.phone)
+||
+password!==user.password
+){
+
+toast(
+"Identifiants incorrects."
+);
+
+return;
+
+}
+
+
+localStorage.setItem(
+"loggedIn",
+"true"
+);
+
+
+startApp();
+
+}
+
+
+function logout(){
+
+localStorage.removeItem(
+"loggedIn"
+);
+
+document.getElementById(
+"app"
+).style.display="none";
+
+document.getElementById(
+"auth"
+).style.display="flex";
+
+showAuth("login");
+
+toast(
+"Déconnexion effectuée."
+);
+
+}
+
+
+/* =====================================================
+START APP
+===================================================== */
+
+function startApp(){
+
+const user =
+getUser();
+
+
+if(!user){
+
+document.getElementById(
+"auth"
+).style.display="flex";
+
+return;
+
+}
+
+
+document.getElementById(
+"auth"
+).style.display="none";
+
+
+document.getElementById(
+"app"
+).style.display="block";
+
+
+updateUI();
+
+renderPlans();
+
+renderHistory();
+
+renderRechargeHistory();
+
+renderWithdrawHistory();
+
+renderPurchases();
+
+renderLinkedAccount();
+
+}
+
+
+/* =====================================================
+UI
+===================================================== */
+
+function updateUI(){
+
+const user =
+getUser();
+
+
+if(!user)return;
+
+
+const balance =
+Number(user.balance || 0);
+
+
+document.getElementById(
+"homeBalance"
+).textContent =
+money(balance);
+
+
+document.getElementById(
+"withdrawBalance"
+).textContent =
+money(balance);
+
+
+document.getElementById(
+"homeUserName"
+).textContent =
+"Bonjour "+user.name;
+
+
+document.getElementById(
+"topUser"
+).textContent =
+user.name
+.charAt(0)
+.toUpperCase();
+
+
+document.getElementById(
+"accountName"
+).textContent =
+user.name;
+
+
+document.getElementById(
+"accountEmail"
+).textContent =
+user.email;
+
+
+document.getElementById(
+"accountPhone"
+).textContent =
+user.phone;
+
+}
+
+
+/* =====================================================
+NAVIGATION
+===================================================== */
+
+function openPage(pageId){
+
+document
+.querySelectorAll(".page")
+.forEach(page=>{
+page.classList.remove("active");
+});
+
+
+const page =
+document.getElementById(pageId);
+
+
+if(page){
+page.classList.add("active");
+}
+
+
+document
+.querySelectorAll(".nav-btn")
+.forEach(btn=>{
+btn.classList.remove("active");
+});
+
+
+const map={
+
+homePage:"navHome",
+
+investPage:"navInvest",
+
+rechargePage:"navRecharge",
+
+teamPage:"navTeam",
+
+accountPage:"navAccount"
+
+};
+
+
+if(map[pageId]){
+
+document
+.getElementById(map[pageId])
+.classList.add("active");
+
+}
+
+
+if(pageId==="purchasesPage"){
+
+renderPurchases();
+
+}
+
+
+if(pageId==="rechargeHistoryPage"){
+
+renderRechargeHistory();
+
+}
+
+
+if(pageId==="withdrawHistoryPage"){
+
+renderWithdrawHistory();
+
+}
+
+
+if(pageId==="historyPage"){
+
+renderHistory();
+
+}
+
+
+if(pageId==="cardPage"){
+
+renderLinkedAccount();
+
+}
+
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+
+/* =====================================================
+PLANS
+===================================================== */
+
+function renderPlans(){
+
+let html="";
+
+
+plans.forEach(plan=>{
+
+html+=`
+
+<div class="plan">
+
+<div class="plan-head">
+
+<div class="plan-name">
+${plan.name}
+</div>
+
+<div class="vip">
+PLAN
+</div>
+
+</div>
+
+
+<div class="plan-row">
+
+<span>
+Montant
+</span>
+
+<strong>
+${money(plan.amount)}
+</strong>
+
+</div>
+
+
+<div class="plan-row">
+
+<span>
+Gain journalier
+</span>
+
+<strong>
++${money(plan.daily)}
+</strong>
+
+</div>
+
+
+<div class="plan-row">
+
+<span>
+Durée
+</span>
+
+<strong>
+${plan.days} jours
+</strong>
+
+</div>
+
+
+<button
+class="btn red"
+onclick="investPlan('${plan.id}')">
+
+INVESTIR
+
+</button>
+
+</div>
+
+`;
+
+});
+
+
+document.getElementById(
+"homePlans"
+).innerHTML=html;
+
+
+document.getElementById(
+"investPlans"
+).innerHTML=html;
+
+}
+
+
+/* =====================================================
+INVESTISSEMENT
+===================================================== */
+
+function investPlan(id){
+
+const user =
+getUser();
+
+
+const plan =
+plans.find(p=>p.id===id);
+
+
+if(!user || !plan)return;
+
+
+const balance =
+Number(user.balance || 0);
+
+
+if(balance < plan.amount){
+
+toast(
+"Solde insuffisant. Veuillez recharger."
+);
+
+openPage("rechargePage");
+
+return;
+
+}
+
+
+/*
+Débit local du solde du prototype.
+*/
+
+user.balance =
+balance-plan.amount;
+
+
+saveUser(user);
+
+
+/*
+Création de l'achat.
+*/
+
+const purchases =
+getPurchases();
+
+
+const purchase={
+
+id:"INV-"+Date.now(),
+
+planId:plan.id,
+
+planName:plan.name,
+
+amount:plan.amount,
+
+daily:plan.daily,
+
+days:plan.days,
+
+date:new Date().toISOString(),
+
+status:"Investissement reçu"
+
+};
+
+
+purchases.unshift(
+purchase
+);
+
+
+savePurchases(purchases);
+
+
+updateUI();
+
+renderPurchases();
+
+
+toast(
+"Investissement reçu et ajouté à Mes achats."
+);
+
+
+/*
+Ouverture automatique de la page Achats.
+*/
+
+setTimeout(()=>{
+
+openPage("purchasesPage");
+
+},400);
+
+}
+
+
+/* =====================================================
+ACHATS
+===================================================== */
+
+function renderPurchases(){
+
+const list =
+document.getElementById(
+"purchasesList"
+);
+
+
+const purchases =
+getPurchases();
+
+
+if(!purchases.length){
+
+list.innerHTML=`
+
+<div class="empty">
+
+<div style="font-size:40px;">
+🛍️
+</div>
+
+<p style="margin-top:10px;">
+Aucun investissement pour le moment.
+</p>
+
+<button
+class="btn red"
+onclick="openPage('investPage')"
+style="margin-top:15px;">
+
+📈 CHOISIR UN PLAN
+
+</button>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+list.innerHTML =
+purchases.map(item=>`
+
+<div class="purchase-card">
+
+
+<div class="purchase-head">
+
+<div style="display:flex;align-items:center;gap:10px;">
+
+<div class="purchase-icon">
+📈
+</div>
+
+<div>
+
+<div class="purchase-title">
+${escapeHtml(item.planName)}
+</div>
+
+<small style="color:#777;">
+${formatDate(item.date)}
+</small>
+
+</div>
+
+</div>
+
+
+<span class="status received">
+REÇU
+</span>
+
+</div>
+
+
+<div class="purchase-grid">
+
+
+<div class="purchase-data">
+
+<small>
+MONTANT
+</small>
+
+<strong>
+${money(item.amount)}
+</strong>
+
+</div>
+
+
+<div class="purchase-data">
+
+<small>
+GAIN JOURNALIER
+</small>
+
+<strong>
++${money(item.daily)}
+</strong>
+
+</div>
+
+
+<div class="purchase-data">
+
+<small>
+DURÉE
+</small>
+
+<strong>
+${item.days} jours
+</strong>
+
+</div>
+
+
+<div class="purchase-data">
+
+<small>
+RÉFÉRENCE
+</small>
+
+<strong>
+${item.id}
+</strong>
+
+</div>
+
+</div>
+
+
+<div class="received-box">
+
+✓ ${escapeHtml(item.status)}
+
+<br>
+
+Votre achat est enregistré dans votre espace.
+
+</div>
+
+
+<button
+class="btn light"
+onclick="openPage('purchasesPage')"
+style="margin-top:10px;">
+
+✓ VOIR L'INVESTISSEMENT
+
+</button>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* =====================================================
+RECHARGE
+===================================================== */
+
+function selectMethod(method){
+
+selectedMethod =
+method;
+
+
+document
+.querySelectorAll("#rechargePage .payment-method")
+.forEach(el=>{
+el.classList.remove("selected");
+});
+
+
+const id={
+
+WAVE:"method-wave",
+
+ORANGE:"method-orange",
+
+MTN:"method-mtn",
+
+MOOV:"method-moov"
+
+}[method];
+
+
+document
+.getElementById(id)
+.classList.add("selected");
+
+}
+
+
+function methodLabel(method){
+
+return {
+
+WAVE:"Wave Money",
+
+ORANGE:"Orange Money",
+
+MTN:"MTN Money",
+
+MOOV:"Moov Money"
+
+}[method] || method;
+
+}
+
+
+function openPayment(){
+
+const amount =
+Number(
+document.getElementById(
+"rechargeAmount"
+).value
+);
+
+
+if(!selectedMethod){
+
+toast(
+"Choisissez une méthode."
+);
+
+return;
+
+}
+
+
+if(!amount || amount<100){
+
+toast(
+"Montant invalide."
+);
+
+return;
+
+}
+
+
+selectedRechargeAmount =
+amount;
+
+
+document.getElementById(
+"selectedMethodText"
+).textContent =
+methodLabel(selectedMethod);
+
+
+document.getElementById(
+"selectedAmountText"
+).textContent =
+money(amount);
+
+
+openPage("paymentPage");
+
+}
+
+
+function copyPaymentNumber(){
+
+if(navigator.clipboard){
+
+navigator.clipboard
+.writeText(PAYMENT_NUMBER)
+.then(()=>{
+toast(
+"Numéro de paiement copié."
+);
+});
+
+}else{
+
+prompt(
+"Copiez le numéro :",
+PAYMENT_NUMBER
+);
+
+}
+
+}
+
+
+function confirmRecharge(){
+
+const phone =
+document.getElementById(
+"customerPaymentPhone"
+).value.trim();
+
+
+const transactionId =
+document.getElementById(
+"transactionId"
+).value.trim();
+
+
+if(!phone || !transactionId){
+
+toast(
+"Veuillez remplir les informations."
+);
+
+return;
+
+}
+
+
+const history =
+getRechargeHistory();
+
+
+history.unshift({
+
+id:"REC-"+Date.now(),
+
+method:selectedMethod,
+
+amount:selectedRechargeAmount,
+
+phone:phone,
+
+transactionId:transactionId,
+
+status:"En attente",
+
+date:new Date().toISOString()
+
+});
+
+
+saveRechargeHistory(history);
+
+
+/*
+Important :
+aucun crédit automatique du solde.
+*/
+
+document.getElementById(
+"customerPaymentPhone"
+).value="";
+
+
+document.getElementById(
+"transactionId"
+).value="";
+
+
+document.getElementById(
+"rechargeAmount"
+).value="";
+
+
+selectedMethod="";
+
+selectedRechargeAmount=0;
+
+
+document
+.querySelectorAll("#rechargePage .payment-method")
+.forEach(el=>{
+el.classList.remove("selected");
+});
+
+
+toast(
+"Recharge enregistrée : En attente."
+);
+
+
+renderRechargeHistory();
+
+
+openPage(
+"rechargeHistoryPage"
+);
+
+}
+
+
+/* =====================================================
+HISTORIQUE RECHARGES
+===================================================== */
+
+function renderRechargeHistory(){
+
+const list =
+document.getElementById(
+"rechargeHistoryList"
+);
+
+
+const history =
+getRechargeHistory();
+
+
+if(!history.length){
+
+list.innerHTML=`
+
+<div class="empty">
+
+<div style="font-size:40px;">
+💳
+</div>
+
+<p style="margin-top:10px;">
+Aucun rechargement.
+</p>
+
+<button
+class="btn red"
+onclick="openPage('rechargePage')"
+style="margin-top:15px;">
+
+＋ NOUVEAU RECHARGEMENT
+
+</button>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+list.innerHTML =
+history.map(item=>`
+
+<div class="history-item">
+
+<div class="history-top">
+
+<strong>
++${money(item.amount)}
+</strong>
+
+<span class="status pending">
+En attente
+</span>
+
+</div>
+
+
+<div class="history-details">
+
+Méthode :
+${methodLabel(item.method)}
+
+<br>
+
+Numéro :
+${escapeHtml(item.phone)}
+
+<br>
+
+Transaction :
+${escapeHtml(item.transactionId)}
+
+<br>
+
+Référence :
+${item.id}
+
+<br>
+
+Date :
+${formatDate(item.date)}
+
+</div>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* =====================================================
+RETRAIT
+===================================================== */
+
+function submitWithdrawal(){
+
+const user =
+getUser();
+
+
+const method =
+document.getElementById(
+"withdrawMethod"
+).value;
+
+
+const phone =
+document.getElementById(
+"withdrawPhone"
+).value.trim();
+
+
+const amount =
+Number(
+document.getElementById(
+"withdrawAmount"
+).value
+);
+
+
+if(!phone || !amount){
+
+toast(
+"Veuillez remplir les champs."
+);
+
+return;
+
+}
+
+
+if(amount<=0){
+
+toast(
+"Montant invalide."
+);
+
+return;
+
+}
+
+
+if(amount >
+Number(user.balance || 0)){
+
+toast(
+"Solde insuffisant."
+);
+
+return;
+
+}
+
+
+user.balance =
+Number(user.balance)-amount;
+
+
+saveUser(user);
+
+
+const history =
+getWithdrawHistory();
+
+
+history.unshift({
+
+id:"WD-"+Date.now(),
+
+method:method,
+
+phone:phone,
+
+amount:amount,
+
+status:"En attente",
+
+date:new Date().toISOString()
+
+});
+
+
+saveWithdrawHistory(history);
+
+
+document.getElementById(
+"withdrawPhone"
+).value="";
+
+
+document.getElementById(
+"withdrawAmount"
+).value="";
+
+
+updateUI();
+
+renderWithdrawHistory();
+
+
+toast(
+"Demande de retrait enregistrée."
+);
+
+
+openPage(
+"withdrawHistoryPage"
+);
+
+}
+
+
+/* =====================================================
+HISTORIQUE RETRAITS
+===================================================== */
+
+function renderWithdrawHistory(){
+
+const list =
+document.getElementById(
+"withdrawHistoryList"
+);
+
+
+const history =
+getWithdrawHistory();
+
+
+if(!history.length){
+
+list.innerHTML=`
+
+<div class="empty">
+
+<div style="font-size:40px;">
+💸
+</div>
+
+<p style="margin-top:10px;">
+Aucun retrait.
+</p>
+
+<button
+class="btn red"
+onclick="openPage('withdrawPage')"
+style="margin-top:15px;">
+
+💸 NOUVEAU RETRAIT
+
+</button>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+list.innerHTML =
+history.map(item=>`
+
+<div class="history-item">
+
+<div class="history-top">
+
+<strong>
+-${money(item.amount)}
+</strong>
+
+<span class="status pending">
+${item.status}
+</span>
+
+</div>
+
+
+<div class="history-details">
+
+Méthode :
+${methodLabel(item.method)}
+
+<br>
+
+Numéro :
+${escapeHtml(item.phone)}
+
+<br>
+
+Référence :
+${item.id}
+
+<br>
+
+Date :
+${formatDate(item.date)}
+
+</div>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* =====================================================
+HISTORIQUE GENERAL
+===================================================== */
+
+function filterHistory(type){
+
+document
+.querySelectorAll(".history-tabs button")
+.forEach(btn=>{
+btn.classList.remove("active");
+});
+
+
+if(type==="all"){
+
+document
+.getElementById("allHistTab")
+.classList.add("active");
+
+}
+
+
+if(type==="recharge"){
+
+document
+.getElementById("rechargeHistTab")
+.classList.add("active");
+
+}
+
+
+if(type==="withdraw"){
+
+document
+.getElementById("withdrawHistTab")
+.classList.add("active");
+
+}
+
+
+renderHistory(type);
+
+}
+
+
+function renderHistory(type="all"){
+
+const list =
+document.getElementById(
+"historyList"
+);
+
+
+let data=[];
+
+
+if(type==="all" || type==="recharge"){
+
+getRechargeHistory()
+.forEach(item=>{
+
+data.push({
+
+kind:"Recharge",
+
+amount:item.amount,
+
+method:item.method,
+
+status:item.status,
+
+date:item.date,
+
+ref:item.id
+
+});
+
+});
+
+}
+
+
+if(type==="all" || type==="withdraw"){
+
+getWithdrawHistory()
+.forEach(item=>{
+
+data.push({
+
+kind:"Retrait",
+
+amount:item.amount,
+
+method:item.method,
+
+status:item.status,
+
+date:item.date,
+
+ref:item.id
+
+});
+
+});
+
+}
+
+
+data.sort(
+(a,b)=>
+new Date(b.date)-
+new Date(a.date)
+);
+
+
+if(!data.length){
+
+list.innerHTML=`
+
+<div class="empty">
+
+📋
+
+<br><br>
+
+Aucun historique.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+list.innerHTML =
+data.map(item=>`
+
+<div class="history-item">
+
+<div class="history-top">
+
+<strong>
+
+${item.kind==="Recharge"?"+":"-"}
+
+${money(item.amount)}
+
+</strong>
+
+
+<span class="status pending">
+
+${item.status}
+
+</span>
+
+</div>
+
+
+<div class="history-details">
+
+Type :
+${item.kind}
+
+<br>
+
+Méthode :
+${methodLabel(item.method)}
+
+<br>
+
+Référence :
+${item.ref}
+
+<br>
+
+Date :
+${formatDate(item.date)}
+
+</div>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* =====================================================
+LIER COMPTE
+===================================================== */
+
+function selectLinkMethod(method){
+
+selectedLinkMethod =
+method;
+
+
+document
+.querySelectorAll(
+"#linkAccountPage .payment-method"
+)
+.forEach(el=>{
+el.classList.remove("selected");
+});
+
+
+const id={
+
+WAVE:"link-method-wave",
+
+ORANGE:"link-method-orange",
+
+MTN:"link-method-mtn",
+
+MOOV:"link-method-moov"
+
+}[method];
+
+
+document
+.getElementById(id)
+.classList.add("selected");
+
+}
+
+
+function saveLinkedAccount(){
+
+const name =
+document.getElementById(
+"linkedName"
+).value.trim();
+
+
+const phone =
+document.getElementById(
+"linkedPhone"
+).value.trim();
+
+
+if(!selectedLinkMethod){
+
+toast(
+"Choisissez une méthode."
+);
+
+return;
+
+}
+
+
+if(!name || !phone){
+
+toast(
+"Entrez votre nom et votre numéro."
+);
+
+return;
+
+}
+
+
+const user =
+getUser();
+
+
+user.linkedAccount={
+
+method:selectedLinkMethod,
+
+name:name,
+
+phone:phone,
+
+status:"Compte lié",
+
+date:new Date().toISOString()
+
+};
+
+
+saveUser(user);
+
+
+document.getElementById(
+"linkedName"
+).value="";
+
+
+document.getElementById(
+"linkedPhone"
+).value="";
+
+
+selectedLinkMethod="";
+
+
+document
+.querySelectorAll(
+"#linkAccountPage .payment-method"
+)
+.forEach(el=>{
+el.classList.remove("selected");
+});
+
+
+renderLinkedAccount();
+
+updateUI();
+
+
+toast(
+"Votre compte a été lié."
+);
+
+
+setTimeout(()=>{
+
+openPage("cardPage");
+
+},400);
+
+}
+
+
+/* =====================================================
+AFFICHAGE CARTE
+===================================================== */
+
+function renderLinkedAccount(){
+
+const user =
+getUser();
+
+
+if(!user)return;
+
+
+const account =
+user.linkedAccount;
+
+
+const display =
+document.getElementById(
+"linkedAccountDisplay"
+);
+
+
+if(!account){
+
+document.getElementById(
+"displayCardNumber"
+).textContent =
+"•••• •••• •••• ••••";
+
+
+document.getElementById(
+"displayCardName"
+).textContent =
+"COMPTE NON LIÉ";
+
+
+document.getElementById(
+"displayCardMethod"
+).textContent =
+"-";
+
+
+display.innerHTML=`
+
+<div class="empty">
+
+<div style="font-size:38px;">
+💳
+</div>
+
+<p style="margin-top:10px;">
+Aucun compte n'est encore lié.
+</p>
+
+
+<button
+class="btn red"
+onclick="openPage('linkAccountPage')"
+style="margin-top:15px;">
+
+🔗 LIER MON COMPTE
+
+</button>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+const clean =
+account.phone.replace(
+/\s/g,
+""
+);
+
+
+let masked =
+"•••• •••• ••••";
+
+
+if(clean.length>=4){
+
+masked =
+"•••• •••• •••• "+
+clean.slice(-4);
+
+}
+
+
+document.getElementById(
+"displayCardNumber"
+).textContent =
+masked;
+
+
+document.getElementById(
+"displayCardName"
+).textContent =
+account.name.toUpperCase();
+
+
+document.getElementById(
+"displayCardMethod"
+).textContent =
+methodLabel(account.method);
+
+
+display.innerHTML=`
+
+<div class="linked-info">
+
+<div style="font-weight:bold;font-size:17px;margin-bottom:8px;">
+
+Compte lié
+
+</div>
+
+
+<div class="linked-row">
+
+<span>
+Nom
+</span>
+
+<strong>
+${escapeHtml(account.name)}
+</strong>
+
+</div>
+
+
+<div class="linked-row">
+
+<span>
+Numéro
+</span>
+
+<strong>
+${escapeHtml(account.phone)}
+</strong>
+
+</div>
+
+
+<div class="linked-row">
+
+<span>
+Méthode
+</span>
+
+<strong>
+${methodLabel(account.method)}
+</strong>
+
+</div>
+
+
+<div class="linked-row">
+
+<span>
+Statut
+</span>
+
+<strong>
+
+<span class="account-status">
+
+✓ ${account.status}
+
+</span>
+
+</strong>
+
+</div>
+
+</div>
+
+
+<button
+class="btn light"
+onclick="openPage('linkAccountPage')">
+
+✏️ MODIFIER LE COMPTE
+
+</button>
+
+`;
+
+}
+
+
+/* =====================================================
+EQUIPE
+===================================================== */
+
+function copyReferral(){
+
+if(navigator.clipboard){
+
+navigator.clipboard
+.writeText(REFERRAL_LINK)
+.then(()=>{
+toast(
+"Lien copié."
+);
+});
+
+}else{
+
+prompt(
+"Copiez votre lien :",
+REFERRAL_LINK
+);
+
+}
+
+}
+
+
+function shareReferral(){
+
+if(navigator.share){
+
+navigator.share({
+
+title:"Coca Ultra 5G",
+
+text:"Rejoignez-moi sur Coca Ultra 5G",
+
+url:REFERRAL_LINK
+
+}).catch(()=>{});
+
+}else{
+
+copyReferral();
+
+}
+
+}
+
+
+/* =====================================================
+UTILITAIRES
+===================================================== */
+
+function money(value){
+
+return Number(value || 0)
+.toLocaleString("fr-FR")
++" FCFA";
+
+}
+
+
+function formatDate(date){
+
+return new Date(date)
+.toLocaleString("fr-FR");
+
+}
+
+
+function escapeHtml(text){
+
+const div =
+document.createElement("div");
+
+div.textContent =
+text==null ? "" : text;
+
+return div.innerHTML;
+
+}
+
+
+function toast(message){
+
+const el =
+document.getElementById("toast");
+
+
+el.textContent =
+message;
+
+
+el.classList.add("show");
+
+
+clearTimeout(
+window.toastTimer
+);
+
+
+window.toastTimer =
+setTimeout(()=>{
+
+el.classList.remove("show");
+
+},3000);
+
+}
+
+
+/* =====================================================
+DEMARRAGE
+===================================================== */
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+if(
+localStorage.getItem("loggedIn")==="true"
+&&
+getUser()
+){
+
+startApp();
+
+}else{
+
+document.getElementById(
+"auth"
+).style.display="flex";
+
+
+document.getElementById(
+"app"
+).style.display="none";
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
