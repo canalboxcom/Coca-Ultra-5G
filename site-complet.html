@@ -24,7 +24,7 @@ button{cursor:pointer;border:0}
 .field label{display:block;margin-bottom:7px;font-size:13px;font-weight:700;color:#444}
 .field input,.field select{width:100%;padding:14px;border:1px solid #ddd;border-radius:13px;background:#fff;outline:none}
 .field input:focus,.field select:focus{border-color:#d90429;box-shadow:0 0 0 3px rgba(217,4,41,.08)}
-.btn{width:100%;padding:14px;border-radius:13px;font-weight:700;font-size:14px;margin-top:4px}
+.btn{width:100%;padding:14px;border-radius:13px;font-weight:700;font-size:14px;margin-top:4px;text-align:center;text-decoration:none;display:inline-block}
 .btn.red{color:#fff;background:linear-gradient(135deg,#d90429,#ef233c)}
 .btn.orange{color:#fff;background:linear-gradient(135deg,#ff7900,#ff9f1c)}
 .btn.light{background:#fff0eb;color:#d90429}
@@ -87,6 +87,9 @@ button{cursor:pointer;border:0}
 .payment-number{text-align:center;padding:18px;background:#fff0eb;border:1px dashed #d90429;border-radius:15px;margin:15px 0}
 .payment-number small{display:block;color:#777;margin-bottom:8px}
 .payment-number strong{display:block;color:#d90429;font-size:21px}
+.wave-link-box{margin-top:15px;padding-top:15px;border-top:1px dashed #ffd0c0}
+.wave-link-box p{font-size:13px;color:#555;font-weight:700;margin-bottom:8px}
+.wave-btn{display:block;background:#1689ff;color:#fff;text-decoration:none;padding:12px;border-radius:11px;font-weight:700;font-size:13px;box-shadow:0 4px 12px rgba(22,137,255,.25)}
 .history-tabs{display:flex;gap:7px;overflow:auto;margin-bottom:15px;padding-bottom:5px}
 .history-tabs button{white-space:nowrap;padding:9px 13px;border-radius:20px;background:#eee}
 .history-tabs button.active{background:#d90429;color:#fff}
@@ -182,7 +185,7 @@ button{cursor:pointer;border:0}
 </div>
 <div class="cards-grid">
 <div class="quick-card" onclick="openPage('investPage')"><div class="quick-icon">📈</div><strong>Investir</strong><small>Voir les plans</small></div>
-<div class="quick-card" onclick="openPage('purchasesPage')"><div class="quick-icon">🛍️️</div><strong>Mes achats</strong><small>Mes investissements</small></div>
+<div class="quick-card" onclick="openPage('purchasesPage')"><div class="quick-icon">🛍</div><strong>Mes achats</strong><small>Mes investissements</small></div>
 <div class="quick-card" onclick="openPage('rechargeHistoryPage')"><div class="quick-icon">💳</div><strong>Recharges</strong><small>Historique</small></div>
 <div class="quick-card" onclick="openPage('withdrawHistoryPage')"><div class="quick-icon">💸</div><strong>Retraits</strong><small>Historique</small></div>
 <div class="quick-card" onclick="openPage('cardPage')"><div class="quick-icon">💳</div><strong>Ma carte bancaire</strong><small>Compte lié</small></div>
@@ -244,7 +247,16 @@ button{cursor:pointer;border:0}
 <h2 class="section-title">Effectuer le paiement</h2><p class="section-sub">Suivez les instructions.</p>
 <div class="payment-box">
 <div class="info-box"><strong>Moyen :</strong> <span id="selectedMethodText">-</span><br><strong>Montant :</strong> <span id="selectedAmountText">0 FCFA</span></div>
-<div class="payment-number"><small>Effectuez le paiement sur ce numéro WAVE</small><strong id="paymentNumber">+225 07 97 24 26 16</strong><button class="btn blue" onclick="copyPaymentNumber()" style="margin-top:12px">📋 COPIER LE NUMÉRO</button></div>
+<div class="payment-number">
+<small>Effectuez le paiement sur ce numéro WAVE</small>
+<strong id="paymentNumber">+225 07 97 24 26 16</strong>
+<button class="btn blue" onclick="copyPaymentNumber()" style="margin-top:12px">📋 COPIER LE NUMÉRO</button>
+
+<div class="wave-link-box">
+<p>Vous pouvez payer directement sur le lien :</p>
+<a class="wave-btn" href="https://pay.wave.com/m/M_ci__Rgfsviuph6w/c/ci/" target="_blank" rel="noopener noreferrer">🌊 PAYER VIA LE LIEN WAVE</a>
+</div>
+</div>
 <div class="field"><label>Votre numéro utilisé pour le paiement</label><input id="customerPaymentPhone" type="tel" placeholder="+225..."></div>
 <div class="field"><label>Identifiant / ID de transaction</label><input id="transactionId" type="text" placeholder="Identifiant de transaction"></div>
 <div class="info-box warning">Après le paiement, renseignez les informations demandées puis confirmez votre demande.<br><br>Votre recharge reste <strong>En attente</strong> jusqu'à sa vérification.</div>
@@ -438,7 +450,7 @@ function renderAdminDashboard(){
   $("adminUsersList").innerHTML = users.length ? users.map(u => `
     <div class="history-item">
       <div class="history-top"><strong>${escapeHtml(u.name)}</strong><span class="user-badge">${money(u.balance || 0)}</span></div>
-      <div class="history-details">🆔 Téléphone : <strong>${escapeHtml(u.phone)}</strong><br>✉️ Email : ${escapeHtml(u.email)}<br>📅 Inscription : ${formatDate(u.createdAt)}</div>
+      <div class="history-details">🆔 Téléphone : <strong>${escapeHtml(u.phone)}</strong><br>✉️️ Email : ${escapeHtml(u.email)}<br>📅 Inscription : ${formatDate(u.createdAt)}</div>
       <div class="admin-actions"><button class="btn btn-sm green" onclick="openCreditModal('${u.id}')">💵 Créditer</button></div>
     </div>`).join("") : `<div class="empty">Aucun utilisateur inscrit.</div>`;
   renderAdminTransactions();
