@@ -6,13 +6,6 @@
 <meta name="theme-color" content="#d90429">
 <title>Coca Ultra 5G</title>
 
-<!-- Configuration PWA / Manifeste -->
-<link rel="manifest" href="manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Coca Ultra 5G">
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
 body{background:#fff7f2;color:#222;min-height:100vh}
@@ -1018,10 +1011,6 @@ style="background:rgba(255,255,255,.15);color:#fff;margin-top:8px">
 💬 SERVICE CLIENT
 </button>
 
-<button class="btn red" onclick="downloadAppApk()" style="margin-top:10px; background: linear-gradient(135deg,#ff7900,#ff9f1c);">
-📥 TÉLÉCHARGER L'APPLICATION (APK)
-</button>
-
 <button class="btn red" onclick="logout()" style="margin-top:10px">
 🚪 DÉCONNEXION
 </button>
@@ -1120,26 +1109,6 @@ Confirmer le crédit
 <div id="toast"></div>
 
 <script>
-
-window.downloadAppApk = () => {
-  const apkUrl = "coca-ultra-5g.apk"; 
-  const a = document.createElement('a');
-  a.href = apkUrl;
-  a.download = "Coca-Ultra-5G.apk";
-  document.body.appendChild(a);
-  
-  toast("Préparation du téléchargement de l'application...");
-  
-  setTimeout(() => {
-    window.location.href = apkUrl;
-  }, 500);
-};
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js').catch(() => {});
-  });
-}
 
 const PAYMENT_NUMBERS={
 WAVE:"+225 07 87 59 11 84",
