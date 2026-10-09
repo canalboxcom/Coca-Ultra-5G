@@ -1035,15 +1035,24 @@ alt="Service client">
 
 </div>
 
-<div class="quick-card">
+<div class="quick-card" style="text-align: center;">
 
-<div class="quick-icon">💬</div>
+<div class="quick-icon" style="margin: 0 auto 10px auto;">💬</div>
 
-<strong>Assistance</strong>
+<strong>Assistance WhatsApp</strong>
 
-<p style="color:#777;font-size:13px;margin-top:8px">
+<p style="color:#777;font-size:13px;margin-top:8px;margin-bottom:15px">
 Notre équipe est à votre disposition pour toute question concernant vos transactions, vos recharges ou vos retraits.
 </p>
+
+<!-- Bouton WhatsApp universel Android & iPhone -->
+<a href="https://wa.me/2250787591184?text=Bonjour,%20j'ai%20besoin%20d'assistance%20pour%20obtenir%20mon%20prêt%20sur%20Coca%20Ultra%205G." 
+   target="_blank" 
+   rel="noopener noreferrer" 
+   class="btn green" 
+   style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
+   <span>📱</span> CONTACTER LE SERVICE CLIENT (WHATSAPP)
+</a>
 
 </div>
 
@@ -1275,13 +1284,10 @@ window.scrollTo({top:0,behavior:"smooth"});
 }
 
 function requestLoanProcess(){
-
-toast("Demande de prêt enregistrée. En attente de validation.");
-
+toast("Redirection vers le service client...");
 setTimeout(()=>{
-openPage("homePage");
-},1000);
-
+openPage("supportPage");
+},500);
 }
 
 function formatStatusBadge(status){
