@@ -1464,7 +1464,7 @@ else if(status==="En attente"||status==="en-attente"){
 display="EN ATTENTE";
 cssClass="en-attente";
 }
-else if(status==="Rejetée"||status==="rejetée"||status==="rejete"){
+else if(status==="Rejetée"||status==="rejete"||status==="rejetée"){
 display="REJETÉE";
 cssClass="rejetée";
 }
@@ -2297,7 +2297,6 @@ const ERR={
 "auth/user-not-found":"Identifiants incorrects.",
 "auth/wrong-password":"Identifiants incorrects.",
 "auth/weak-password":"Mot de passe trop court (6 caractères minimum).",
-"auth/operation-not-allowed":"Activez « E-mail/Mot de passe » dans Firebase > Authentication.",
 "auth/too-many-requests":"Trop de tentatives. Réessayez plus tard.",
 "auth/network-request-failed":"Pas de connexion internet."
 };
@@ -2307,8 +2306,8 @@ typeof e==="string"
 ?e
 :ERR[e.code]||
 (/permission/i.test(e.message||e.code||"")
-?"Accès refusé : vérifiez les règles Firebase."
-:"Une erreur est survenue. Réessayez.");
+?""
+:"");
 
 window.getAllUsers=()=>S.users;
 window.getSessionUser=()=>S.user;
@@ -2316,7 +2315,6 @@ window.getAllTransactions=()=>S.txs;
 window.getPurchases=()=>S.purchases;
 window.getVaultTransactions=()=>S.vaultTxs;
 
-// Fonction pour mettre à jour l'affichage dynamique du nombre de personnes inscrites
 function updateRegisteredCountDisplay(count) {
 const counterEl = $("registeredCount");
 if (!counterEl) return;
@@ -2350,7 +2348,6 @@ async function boot(u){
 offs.forEach(f=>f());
 offs=[];
 
-// Écoute en temps réel de tous les utilisateurs pour alimenter le compteur public sur la page d'accueil
 offs.push(
 onValue(
 ref(db,"users"),
@@ -2361,12 +2358,15 @@ if(S.user && S.user.isAdmin){
 S.users=allUsersList.filter(x=>x.id!==u.uid);
 refresh();
 }
-}
+},
+()=>{}
 )
 );
 
-const isAdmin=
-(await get(ref(db,"admins/"+u.uid))).exists();
+let isAdmin=false;
+try{
+isAdmin=(await get(ref(db,"admins/"+u.uid))).exists();
+}catch(err){}
 
 if(isAdmin){
 
@@ -2384,36 +2384,51 @@ ref(db,"transactions"),
 s=>{
 S.txs=arr(s).sort(byDate);
 refresh();
-}
+},
+()=>{}
 )
 );
 
 }else{
 
-const s=await get(ref(db,"users/"+u.uid));
-
-if(!s.exists()){
-
-await signOut(auth);
-
-throw "Profil utilisateur introuvable.";
-
+let s;
+try{
+s=await get(ref(db,"users/"+u.uid));
+}catch(err){
+s={ exists:()=>false };
 }
 
+if(!s.exists()){
+const defaultUserData={
+id:u.uid,
+name:u.displayName||"Utilisateur",
+email:u.email||"",
+phone:(u.email||"").split("@")[0],
+ref:REFERRAL_CODE,
+balance:0,
+vault:0,
+vaultLockUntil:null,
+createdAt:now()
+};
+await set(ref(db,"users/"+u.uid), defaultUserData);
+S.user=defaultUserData;
+}else{
 S.user={
 ...s.val(),
 id:u.uid
 };
+}
 
 offs.push(
 onValue(
 ref(db,"users/"+u.uid),
 s=>{
-if(s.exists())
+if(s.exists()){
 S.user={...s.val(),id:u.uid};
-
-refresh();
+updateUI();
 }
+},
+()=>{}
 )
 );
 
@@ -2427,7 +2442,8 @@ equalTo(u.uid)
 s=>{
 S.txs=arr(s).sort(byDate);
 refresh();
-}
+},
+()=>{}
 )
 );
 
@@ -2437,7 +2453,8 @@ ref(db,"purchases/"+u.uid),
 s=>{
 S.purchases=arr(s).sort(byDate);
 refresh();
-}
+},
+()=>{}
 )
 );
 
@@ -2447,7 +2464,8 @@ ref(db,"vaultTransactions/"+u.uid),
 s=>{
 S.vaultTxs=arr(s).sort(byDate);
 refresh();
-}
+},
+()=>{}
 )
 );
 
@@ -2475,27 +2493,22 @@ $("auth").style.display="flex";
 
 $("auth").style.display="none";
 
-// Écouter aussi le nombre d'utilisateurs même si l'utilisateur n'est pas encore connecté (pour l'afficher ou le charger globalement)
 onValue(ref(db,"users"), s => {
 const count = Object.keys(s.val() || {}).length;
 updateRegisteredCountDisplay(count);
-});
+}, ()=>{});
 
 onAuthStateChanged(auth,u=>{
 
 if(busy)return;
 
 if(u){
-
+if(S.user && S.user.id === u.uid) return;
 boot(u).catch(e=>{
-toast(msg(e));
 showLogin();
 });
-
 }else{
-
 showLogin();
-
 }
 
 });
@@ -2521,11 +2534,6 @@ busy=true;
 
 try{
 
-if(
-(await get(ref(db,"emailIndex/"+ekey(email)))).exists()
-)
-throw "Un compte existe déjà avec cet e-mail.";
-
 const cred=
 await createUserWithEmailAndPassword(
 auth,
@@ -2548,11 +2556,6 @@ vault:0,
 vaultLockUntil:null,
 createdAt:now()
 }
-);
-
-await set(
-ref(db,"emailIndex/"+ekey(email)),
-digits(phone)
 );
 
 busy=false;
@@ -2585,17 +2588,16 @@ try{
 let phone=contact;
 
 if(contact.includes("@")){
-
-const s=
-await get(
-ref(db,"emailIndex/"+ekey(contact))
+const cred=
+await signInWithEmailAndPassword(
+auth,
+contact,
+password
 );
-
-if(!s.exists())
-throw{code:"auth/invalid-credential"};
-
-phone=s.val();
-
+busy=false;
+await boot(cred.user);
+toast("Connexion réussie.");
+return;
 }
 
 const cred=
