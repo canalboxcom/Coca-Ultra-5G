@@ -14,7 +14,7 @@ button{cursor:pointer;border:0}
 .hidden{display:none!important}
 
 #appLoading{
-position:fixed;inset:0;background:#fff7f2;display:flex;
+position:fixed;inset:0;background:#fff7f2;display:none;
 flex-direction:column;justify-content:center;align-items:center;z-index:9999
 }
 .spinner{
@@ -25,7 +25,7 @@ animation:spin 1s linear infinite;margin-bottom:15px
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 
 #auth{
-min-height:100vh;display:none;justify-content:center;align-items:center;
+min-height:100vh;display:flex;justify-content:center;align-items:center;
 padding:20px;background:radial-gradient(circle at top left,#ff7a00 0%,transparent 28%),
 radial-gradient(circle at bottom right,#d90429 0%,transparent 30%),
 linear-gradient(135deg,#fff,#fff1ec)
@@ -1323,11 +1323,7 @@ $("registerTab").classList.toggle("active",!l);
 }
 
 function startApp(){
-
 const u=getSessionUser();
-
-const loader = $("appLoading");
-if(loader) loader.style.display="none";
 
 if(!u){
 $("auth").style.display="flex";
@@ -1339,16 +1335,12 @@ $("auth").style.display="none";
 $("app").style.display="block";
 
 if(u.isAdmin){
-
 $("clientNav").style.display="none";
 $("topUser").textContent="A";
 openPage("adminPage");
 renderAdminDashboard();
-
 }else{
-
 $("clientNav").style.display="flex";
-
 updateUI();
 renderPlans();
 renderHistory();
@@ -1362,9 +1354,7 @@ startImageSlider();
 let savedPage = 'homePage';
 try { savedPage = sessionStorage.getItem('coca_active_page') || 'homePage'; } catch(e){}
 openPage(savedPage);
-
 }
-
 }
 
 function updateUI(){
@@ -2443,12 +2433,16 @@ id:u.uid
 };
 }
 
+// Sauvegarde immédiate dans localStorage pour éviter la redirection au F5
+try { localStorage.setItem('coca_session_user', JSON.stringify(S.user)); } catch(e){}
+
 offs.push(
 onValue(
 ref(db,"users/"+u.uid),
 s=>{
 if(s.exists()){
 S.user={...s.val(),id:u.uid};
+try { localStorage.setItem('coca_session_user', JSON.stringify(S.user)); } catch(e){}
 updateUI();
 }
 },
@@ -2500,7 +2494,6 @@ startApp();
 }
 
 function showLogin(){
-
 offs.forEach(f=>f());
 offs=[];
 
@@ -2510,12 +2503,8 @@ S.txs=[];
 S.purchases=[];
 S.vaultTxs=[];
 
-const loader = $("appLoading");
-if(loader) loader.style.display="none";
-
 $("app").style.display="none";
 $("auth").style.display="flex";
-
 }
 
 onValue(ref(db,"users"), s => {
@@ -2523,30 +2512,32 @@ const count = Object.keys(s.val() || {}).length;
 updateRegisteredCountDisplay(count);
 }, ()=>{});
 
-// Vérification de secours dans le localStorage local
-let cachedAuth = null;
-try { cachedAuth = JSON.parse(localStorage.getItem('coca_cached_user')); } catch(e){}
-
-if (cachedAuth && cachedAuth.uid) {
-  S.user = cachedAuth;
-  boot(cachedAuth).catch(()=>{});
-}
+// RESTAURATION INSTANTANÉE PAR LE CACHE LOCAL (Règle le problème d'actualisation)
+try {
+  const cachedUser = JSON.parse(localStorage.getItem('coca_session_user'));
+  if (cachedUser && cachedUser.id) {
+    S.user = cachedUser;
+    $("auth").style.display = "none";
+    $("app").style.display = "block";
+    updateUI();
+    renderPlans();
+    let savedPage = 'homePage';
+    try { savedPage = sessionStorage.getItem('coca_active_page') || 'homePage'; } catch(e){}
+    openPage(savedPage);
+  }
+} catch(e){}
 
 onAuthStateChanged(auth, u => {
 if(busy) return;
 
 if(u){
-  try { localStorage.setItem('coca_cached_user', JSON.stringify({ uid: u.uid, email: u.email })); } catch(e){}
-  if(S.user && S.user.id === u.uid){
-    const loader = $("appLoading");
-    if(loader) loader.style.display="none";
-    return;
-  }
+  if(S.user && S.user.id === u.uid) return;
   boot(u).catch(e => {
     showLogin();
   });
 }else{
-  if (!cachedAuth) {
+  // Si pas de session Firebase et pas de cache valide
+  if(!localStorage.getItem('coca_session_user')) {
     showLogin();
   }
 }
@@ -2582,9 +2573,7 @@ password
 
 const uid=cred.user.uid;
 
-await set(
-ref(db,"users/"+uid),
-{
+const newUser={
 id:uid,
 name,
 email,
@@ -2594,22 +2583,18 @@ balance:0,
 vault:0,
 vaultLockUntil:null,
 createdAt:now()
-}
-);
+};
 
-try { localStorage.setItem('coca_cached_user', JSON.stringify({ uid: uid, email: authMail(phone) })); } catch(e){}
+await set(ref(db,"users/"+uid), newUser);
+try { localStorage.setItem('coca_session_user', JSON.stringify(newUser)); } catch(e){}
 
 busy=false;
-
 await boot(cred.user);
-
 toast("Compte créé avec succès.");
 
 }catch(e){
-
 busy=false;
 toast(msg(e));
-
 }
 
 };
@@ -2635,7 +2620,6 @@ auth,
 contact,
 password
 );
-try { localStorage.setItem('coca_cached_user', JSON.stringify({ uid: cred.user.uid, email: cred.user.email })); } catch(e){}
 busy=false;
 await boot(cred.user);
 toast("Connexion réussie.");
@@ -2649,39 +2633,23 @@ authMail(phone),
 password
 );
 
-try { localStorage.setItem('coca_cached_user', JSON.stringify({ uid: cred.user.uid, email: cred.user.email })); } catch(e){}
-
 busy=false;
-
 await boot(cred.user);
-
-toast(
-S.user.isAdmin
-?"Connexion Administrateur réussie."
-:"Connexion réussie."
-);
+toast("Connexion réussie.");
 
 }catch(e){
-
 busy=false;
 toast(msg(e));
-
 }
 
 };
 
 window.logout=async()=>{
-
-try { localStorage.removeItem('coca_cached_user'); } catch(e){}
+try { localStorage.removeItem('coca_session_user'); } catch(e){}
 try { sessionStorage.removeItem('coca_active_page'); } catch(e){}
 await signOut(auth);
-
 showLogin();
-
-showAuth("login");
-
 toast("Déconnexion effectuée.");
-
 };
 
 window.confirmCreditUser=async()=>{
