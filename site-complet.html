@@ -59,6 +59,8 @@ margin-top:4px;text-align:center;text-decoration:none;display:inline-block
 .btn.gray{background:#eee;color:#333}
 .btn.blue{background:#1976d2;color:#fff}
 .btn.green{background:#2e7d32;color:#fff}
+.btn.telegram{background:#0088cc;color:#fff}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
 .btn-sm{padding:8px 12px;font-size:12px;border-radius:8px;width:auto}
 
 #app{display:none;min-height:100vh;padding-bottom:82px}
@@ -504,12 +506,27 @@ alt="Paiement mobile">
 </div>
 </div>
 
+<!-- Section Coffre ajoutée à côté/sous le solde -->
+<div style="background:#fff;padding:18px;border-radius:23px;margin-bottom:16px;box-shadow:0 10px 30px rgba(217,4,41,.08);border:1px solid #ffe0d2;display:flex;align-items:center;justify-content:space-between;">
+<div>
+<div style="font-size:12px;color:#777;font-weight:700;">🔒 Mon Coffre (Sécurisé)</div>
+<div id="homeVaultBalance" style="font-size:22px;font-weight:700;color:#d90429;margin-top:4px;">0 FCFA</div>
+</div>
+<button class="btn red btn-sm" onclick="openPage('vaultPage')" style="padding:10px 16px;">Gérer le coffre</button>
+</div>
+
 <div class="cards-grid">
 
 <div class="quick-card" onclick="openPage('investPage')">
 <div class="quick-icon">📈</div>
 <strong>Investir</strong>
 <small>Voir les plans</small>
+</div>
+
+<div class="quick-card" onclick="openPage('vaultPage')">
+<div class="quick-icon">🔒</div>
+<strong>Coffre</strong>
+<small>Mettre de côté</small>
 </div>
 
 <div class="quick-card" onclick="openPage('loanPage')">
@@ -567,6 +584,89 @@ alt="Paiement mobile">
 <div id="homePlans"></div>
 
 </section>
+
+<!-- Page Coffre -->
+<section id="vaultPage" class="page">
+<h2 class="section-title">🔒 Mon Coffre</h2>
+<p class="section-sub">Mettez votre argent de côté en toute sécurité.</p>
+
+<div class="hero" style="background:radial-gradient(circle at right top,#ff9f1c 0%,transparent 35%),linear-gradient(135deg,#151515,#d90429);margin-bottom:20px;">
+<small>Montant caché dans le coffre</small>
+<div class="hero-balance" id="vaultBalanceDisplay">0 FCFA</div>
+<small id="vaultStatusText">Statut : Non verrouillé</small>
+</div>
+
+<div class="payment-box" style="margin-bottom:20px;">
+<div class="info-box">
+<strong>Solde disponible actuel :</strong>
+<span id="vaultAvailableBalance">0 FCFA</span>
+</div>
+
+<div class="field" style="margin-top:15px">
+<label>Montant de l'opération (FCFA)</label>
+<input id="vaultInputAmount" type="number" min="1" placeholder="Ex : 10000">
+</div>
+
+<div style="display:flex;gap:10px;margin-top:15px;">
+<button class="btn orange" onclick="vaultAction('keep')" style="flex:1;">🔒 Garder</button>
+<button class="btn red" id="vaultWithdrawBtn" onclick="vaultAction('withdraw')" style="flex:1;">🔓 Récupérer</button>
+</div>
+
+<button class="btn blue" onclick="openLockModal()" style="margin-top:12px">🔒 Bloquez votre Coffre</button>
+<button class="btn light" onclick="openPage('homePage')" style="margin-top:10px">RETOUR À L'ACCUEIL</button>
+</div>
+
+<h3 style="margin-bottom:12px;">Historique du Coffre</h3>
+<div id="vaultHistoryList"></div>
+</section>
+
+<!-- Modal de blocage du coffre -->
+<div id="lockModal" class="modal-overlay hidden">
+<div class="modal-card">
+<h3>🔒 Verrouiller le Coffre</h3>
+<p>Choisissez la durée pendant laquelle votre coffre sera bloqué :</p>
+
+<div class="field">
+<label>Durée du blocage</label>
+<select id="lockDurationSelect" onchange="toggleCustomDateInput()">
+<option value="tomorrow">Demain</option>
+<option value="1week">1 semaine</option>
+<option value="2weeks">2 semaines</option>
+<option value="1month">1 mois</option>
+<option value="2months">2 mois</option>
+<option value="custom">Date personnalisée</option>
+</select>
+</div>
+
+<div class="field hidden" id="customDateField">
+<label>Date et heure personnalisées</label>
+<input id="customLockDateInput" type="datetime-local">
+</div>
+
+<div style="display:flex;gap:10px;margin-top:18px">
+<button class="btn gray" onclick="closeLockModal()">Annuler</button>
+<button class="btn red" onclick="submitLockVault()">Continuer</button>
+</div>
+</div>
+</div>
+
+<!-- Modal de confirmation de blocage -->
+<div id="confirmLockModal" class="modal-overlay hidden">
+<div class="modal-card">
+<h3>⚠️ Confirmation de verrouillage</h3>
+<p>Veuillez vérifier les informations de blocage de votre coffre :</p>
+
+<div class="info-box" style="margin:12px 0;">
+<strong>Montant dans le coffre :</strong> <span id="confirmLockAmount">-</span><br>
+<strong>Déblocage prévu le :</strong> <span id="confirmLockDateText">-</span>
+</div>
+
+<div style="display:flex;gap:10px;margin-top:18px">
+<button class="btn gray" onclick="closeConfirmLockModal()">Annuler</button>
+<button class="btn green" onclick="confirmAndLockVault()">Confirmer le blocage</button>
+</div>
+</div>
+</div>
 
 <section id="loanPage" class="page">
 <h2 class="section-title">Demander un prêt</h2>
@@ -1001,6 +1101,10 @@ style="background:rgba(255,255,255,.15);color:#fff;margin-top:8px">
 🔗 LIER VOTRE COMPTE
 </button>
 
+<button class="btn light" onclick="openPage('vaultPage')" style="margin-top:10px">
+🔒 MON COFFRE
+</button>
+
 <button class="btn light" onclick="openPage('cardPage')" style="margin-top:10px">
 💳 MA CARTE BANCAIRE
 </button>
@@ -1018,7 +1122,7 @@ style="background:rgba(255,255,255,.15);color:#fff;margin-top:8px">
 </button>
 
 <button class="btn light" onclick="openPage('supportPage')" style="margin-top:10px">
-💬 SERVICE CLIENT
+💬 SERVICE CLIENT & GROUPE
 </button>
 
 <button class="btn red" onclick="logout()" style="margin-top:10px">
@@ -1029,8 +1133,8 @@ style="background:rgba(255,255,255,.15);color:#fff;margin-top:8px">
 
 <section id="supportPage" class="page">
 
-<h2 class="section-title">Service client</h2>
-<p class="section-sub">Contactez directement le service client.</p>
+<h2 class="section-title">Service client & Communauté</h2>
+<p class="section-sub">Contactez l'assistance ou rejoignez notre groupe officiel.</p>
 
 <div class="image-showcase" style="height:200px">
 
@@ -1045,7 +1149,7 @@ alt="Service client">
 
 </div>
 
-<div class="quick-card" style="text-align: center;">
+<div class="quick-card" style="text-align: center; margin-bottom: 15px;">
 
 <div class="quick-icon" style="margin: 0 auto 10px auto;">💬</div>
 
@@ -1062,6 +1166,27 @@ Notre équipe est à votre disposition pour toute question concernant vos transa
    class="btn green" 
    style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
    <span>📱</span> CONTACTER LE SERVICE CLIENT (WHATSAPP)
+</a>
+
+</div>
+
+<div class="quick-card" style="text-align: center;">
+
+<div class="quick-icon" style="margin: 0 auto 10px auto; background:#e0f2fe; color:#0088cc;">📢</div>
+
+<strong>Groupe Telegram Officiel</strong>
+
+<p style="color:#777;font-size:13px;margin-top:8px;margin-bottom:15px">
+Rejoignez notre canal Telegram pour ne rien rater des actualités, des annonces et échanger avec la communauté.
+</p>
+
+<!-- Lien Telegram -->
+<a href="https://t.me/+tygIrcCkyvQ0NmQ0" 
+   target="_blank" 
+   rel="noopener noreferrer" 
+   class="btn telegram" 
+   style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
+   <span>✈️</span> REJOINDRE LE GROUPE TELEGRAM
 </a>
 
 </div>
@@ -1144,6 +1269,7 @@ let selectedRechargeAmount=0;
 let selectedLinkMethod="";
 let currentAdminFilter="all";
 let targetCreditUserId=null;
+let calculatedUnlockDate=null;
 
 const plans=[
 {id:"VIP1",name:"VIP 1",amount:5000,daily:1300,days:31},
@@ -1218,6 +1344,7 @@ renderRechargeHistory();
 renderWithdrawHistory();
 renderPurchases();
 renderLinkedAccount();
+renderVaultHistory();
 startImageSlider();
 openPage("homePage");
 
@@ -1232,15 +1359,34 @@ const u=getSessionUser();
 if(!u||u.isAdmin)return;
 
 const b=Number(u.balance||0);
+const v=Number(u.vault||0);
+const lockUntil=u.vaultLockUntil;
 
 $("homeBalance").textContent=money(b);
 $("withdrawBalance").textContent=money(b);
+$("homeVaultBalance").textContent=money(v);
+$("vaultBalanceDisplay").textContent=money(v);
+$("vaultAvailableBalance").textContent=money(b);
+
 $("homeUserName").textContent="Bonjour "+u.name;
 $("topUser").textContent=u.name.charAt(0).toUpperCase();
 
 $("accountName").textContent=u.name;
 $("accountEmail").textContent=u.email;
 $("accountPhone").textContent=u.phone;
+
+const nowTime = new Date().getTime();
+const withdrawBtn = $("vaultWithdrawBtn");
+const statusText = $("vaultStatusText");
+
+if(lockUntil && new Date(lockUntil).getTime() > nowTime){
+const formattedDate = formatDate(lockUntil);
+if(withdrawBtn) withdrawBtn.disabled = true;
+if(statusText) statusText.textContent = `Coffre bloqué jusqu'au : ${formattedDate}`;
+} else {
+if(withdrawBtn) withdrawBtn.disabled = false;
+if(statusText) statusText.textContent = "Statut : Non verrouillé";
+}
 
 }
 
@@ -1285,6 +1431,11 @@ renderHistory();
 if(pageId==="cardPage")
 renderLinkedAccount();
 
+if(pageId==="vaultPage"){
+updateUI();
+renderVaultHistory();
+}
+
 }
 
 if(pageId==="adminPage")
@@ -1313,7 +1464,7 @@ else if(status==="En attente"||status==="en-attente"){
 display="EN ATTENTE";
 cssClass="en-attente";
 }
-else if(status==="Rejetée"||status==="rejete"||status==="rejetée"){
+else if(status==="Rejetée"||status==="rejetée"||status==="rejete"){
 display="REJETÉE";
 cssClass="rejetée";
 }
@@ -2125,7 +2276,8 @@ const S={
 user:null,
 users:[],
 txs:[],
-purchases:[]
+purchases:[],
+vaultTxs:[]
 };
 
 let busy=false;
@@ -2162,6 +2314,7 @@ window.getAllUsers=()=>S.users;
 window.getSessionUser=()=>S.user;
 window.getAllTransactions=()=>S.txs;
 window.getPurchases=()=>S.purchases;
+window.getVaultTransactions=()=>S.vaultTxs;
 
 // Fonction pour mettre à jour l'affichage dynamique du nombre de personnes inscrites
 function updateRegisteredCountDisplay(count) {
@@ -2188,6 +2341,7 @@ renderRechargeHistory();
 renderWithdrawHistory();
 renderPurchases();
 renderLinkedAccount();
+renderVaultHistory();
 
 }
 
@@ -2287,6 +2441,16 @@ refresh();
 )
 );
 
+offs.push(
+onValue(
+ref(db,"vaultTransactions/"+u.uid),
+s=>{
+S.vaultTxs=arr(s).sort(byDate);
+refresh();
+}
+)
+);
+
 }
 
 startApp();
@@ -2302,6 +2466,7 @@ S.user=null;
 S.users=[];
 S.txs=[];
 S.purchases=[];
+S.vaultTxs=[];
 
 $("app").style.display="none";
 $("auth").style.display="flex";
@@ -2379,6 +2544,8 @@ email,
 phone,
 ref:refCode||REFERRAL_CODE,
 balance:0,
+vault:0,
+vaultLockUntil:null,
 createdAt:now()
 }
 );
@@ -2715,6 +2882,160 @@ toast(msg(e));
 }
 
 };
+
+window.vaultAction = async (actionType) => {
+const u = S.user;
+const amount = Number($("vaultInputAmount").value);
+
+if (!amount || amount <= 0) {
+return toast("Veuillez saisir un montant valide.");
+}
+
+const currentBalance = Number(u.balance || 0);
+const currentVault = Number(u.vault || 0);
+const nowTime = new Date().getTime();
+
+if (actionType === 'keep') {
+if (amount > currentBalance) {
+return toast("Solde disponible insuffisant pour mettre de côté.");
+}
+
+try {
+const txId = rid("VT");
+await update(ref(db), {
+["users/" + u.id + "/balance"]: currentBalance - amount,
+["users/" + u.id + "/vault"]: currentVault + amount,
+["vaultTransactions/" + u.id + "/" + txId]: {
+id: txId,
+type: "Garder (Coffre)",
+amount: amount,
+date: now()
+}
+});
+
+$("vaultInputAmount").value = "";
+toast(`Vous avez mis ${money(amount)} dans votre coffre.`);
+updateUI();
+renderVaultHistory();
+} catch (e) {
+toast(msg(e));
+}
+} else if (actionType === 'withdraw') {
+if (u.vaultLockUntil && new Date(u.vaultLockUntil).getTime() > nowTime) {
+return toast("Votre coffre est actuellement verrouillé.");
+}
+
+if (amount > currentVault) {
+return toast("Montant demandé supérieur au contenu de votre coffre.");
+}
+
+try {
+const txId = rid("VT");
+await update(ref(db), {
+["users/" + u.id + "/vault"]: currentVault - amount,
+["users/" + u.id + "/balance"]: currentBalance + amount,
+["vaultTransactions/" + u.id + "/" + txId]: {
+id: txId,
+type: "Récupérer (Coffre)",
+amount: amount,
+date: now()
+}
+});
+
+$("vaultInputAmount").value = "";
+toast(`Vous avez récupéré ${money(amount)} de votre coffre.`);
+updateUI();
+renderVaultHistory();
+} catch (e) {
+toast(msg(e));
+}
+}
+};
+
+window.toggleCustomDateInput = () => {
+const val = $("lockDurationSelect").value;
+$("customDateField").classList.toggle("hidden", val !== "custom");
+};
+
+window.openLockModal = () => {
+$("lockModal").classList.remove("hidden");
+};
+
+window.closeLockModal = () => {
+$("lockModal").classList.add("hidden");
+};
+
+window.submitLockVault = () => {
+const selection = $("lockDurationSelect").value;
+const d = new Date();
+
+if (selection === "tomorrow") {
+d.setDate(d.getDate() + 1);
+} else if (selection === "1week") {
+d.setDate(d.getDate() + 7);
+} else if (selection === "2weeks") {
+d.setDate(d.getDate() + 14);
+} else if (selection === "1month") {
+d.setMonth(d.getMonth() + 1);
+} else if (selection === "2months") {
+d.setMonth(d.getMonth() + 2);
+} else if (selection === "custom") {
+const customVal = $("customLockDateInput").value;
+if (!customVal) return toast("Veuillez sélectionner une date et une heure.");
+d.setTime(new Date(customVal).getTime());
+}
+
+calculatedUnlockDate = d.toISOString();
+
+$("confirmLockAmount").textContent = money(S.user.vault || 0);
+$("confirmLockDateText").textContent = formatDate(calculatedUnlockDate);
+
+closeLockModal();
+$("confirmLockModal").classList.remove("hidden");
+};
+
+window.closeConfirmLockModal = () => {
+$("confirmLockModal").classList.add("hidden");
+};
+
+window.confirmAndLockVault = async () => {
+const u = S.user;
+try {
+await update(ref(db), {
+["users/" + u.id + "/vaultLockUntil"]: calculatedUnlockDate
+});
+
+closeConfirmLockModal();
+toast(`Coffre bloqué avec succès jusqu'au ${formatDate(calculatedUnlockDate)}.`);
+updateUI();
+} catch (e) {
+toast(msg(e));
+}
+};
+
+function renderVaultHistory() {
+const list = $("vaultHistoryList");
+if(!list) return;
+const items = S.vaultTxs || [];
+
+if(!items.length) {
+list.innerHTML = `<div class="empty"><div style="font-size:30px">🔒</div><p style="margin-top:8px">Aucune opération dans le coffre.</p></div>`;
+return;
+}
+
+list.innerHTML = items.map(i => `
+<div class="history-item">
+<div class="history-top">
+<strong>${i.type.includes("Garder") ? "+" : "-"}${money(i.amount)}</strong>
+<span class="status validée">${i.type}</span>
+</div>
+<div class="history-details">
+Référence : ${i.id}<br>
+Date : ${formatDate(i.date)}
+</div>
+</div>
+`).join("");
+}
 
 window.investPlan=async id=>{
 
