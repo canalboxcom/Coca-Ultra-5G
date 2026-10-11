@@ -483,6 +483,16 @@ alt="Paiement mobile">
 
 </div>
 
+<!-- Compteur dynamique du nombre de personnes inscrites -->
+<div style="background:#fff;padding:15px 18px;border-radius:18px;margin-bottom:16px;box-shadow:0 5px 20px rgba(217,4,41,.06);display:flex;align-items:center;justify-content:space-between;">
+<div>
+<span style="font-size:14px;color:#555;font-weight:700;">👥 Membres inscrits :</span>
+</div>
+<div>
+<span id="registeredCount" style="color:#d90429;font-size:16px;font-weight:700;">Chargement...</span>
+</div>
+</div>
+
 <div class="hero">
 <small>Mon solde disponible</small>
 <div class="hero-balance" id="homeBalance">0 FCFA</div>
@@ -2153,6 +2163,18 @@ window.getSessionUser=()=>S.user;
 window.getAllTransactions=()=>S.txs;
 window.getPurchases=()=>S.purchases;
 
+// Fonction pour mettre à jour l'affichage dynamique du nombre de personnes inscrites
+function updateRegisteredCountDisplay(count) {
+const counterEl = $("registeredCount");
+if (!counterEl) return;
+
+if (count === 1) {
+counterEl.textContent = "1 personne";
+} else {
+counterEl.textContent = count + " personnes";
+}
+}
+
 function refresh(){
 
 if(!S.user)return;
@@ -2174,6 +2196,21 @@ async function boot(u){
 offs.forEach(f=>f());
 offs=[];
 
+// Écoute en temps réel de tous les utilisateurs pour alimenter le compteur public sur la page d'accueil
+offs.push(
+onValue(
+ref(db,"users"),
+s=>{
+const allUsersList = arr(s);
+updateRegisteredCountDisplay(allUsersList.length);
+if(S.user && S.user.isAdmin){
+S.users=allUsersList.filter(x=>x.id!==u.uid);
+refresh();
+}
+}
+)
+);
+
 const isAdmin=
 (await get(ref(db,"admins/"+u.uid))).exists();
 
@@ -2186,16 +2223,6 @@ email:"",
 phone:(u.email||"").split("@")[0],
 isAdmin:true
 };
-
-offs.push(
-onValue(
-ref(db,"users"),
-s=>{
-S.users=arr(s).filter(x=>x.id!==u.uid);
-refresh();
-}
-)
-);
 
 offs.push(
 onValue(
@@ -2282,6 +2309,12 @@ $("auth").style.display="flex";
 }
 
 $("auth").style.display="none";
+
+// Écouter aussi le nombre d'utilisateurs même si l'utilisateur n'est pas encore connecté (pour l'afficher ou le charger globalement)
+onValue(ref(db,"users"), s => {
+const count = Object.keys(s.val() || {}).length;
+updateRegisteredCountDisplay(count);
+});
 
 onAuthStateChanged(auth,u=>{
 
