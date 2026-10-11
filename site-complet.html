@@ -13,8 +13,19 @@ button,input,select{font-family:inherit}
 button{cursor:pointer;border:0}
 .hidden{display:none!important}
 
+#appLoading{
+position:fixed;inset:0;background:#fff7f2;display:flex;
+flex-direction:column;justify-content:center;align-items:center;z-index:9999
+}
+.spinner{
+width:45px;height:45px;border:4px solid #ffe0d2;
+border-top:4px solid #d90429;border-radius:50%;
+animation:spin 1s linear infinite;margin-bottom:15px
+}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+
 #auth{
-min-height:100vh;display:flex;justify-content:center;align-items:center;
+min-height:100vh;display:none;justify-content:center;align-items:center;
 padding:20px;background:radial-gradient(circle at top left,#ff7a00 0%,transparent 28%),
 radial-gradient(circle at bottom right,#d90429 0%,transparent 30%),
 linear-gradient(135deg,#fff,#fff1ec)
@@ -384,6 +395,11 @@ display:flex;align-items:center;gap:8px
 
 <body>
 
+<div id="appLoading">
+<div class="spinner"></div>
+<div style="color:#d90429;font-weight:700;font-size:14px">Chargement de votre compte...</div>
+</div>
+
 <div id="auth">
 <div class="auth-box">
 
@@ -485,7 +501,6 @@ alt="Paiement mobile">
 
 </div>
 
-<!-- Compteur dynamique du nombre de personnes inscrites -->
 <div style="background:#fff;padding:15px 18px;border-radius:18px;margin-bottom:16px;box-shadow:0 5px 20px rgba(217,4,41,.06);display:flex;align-items:center;justify-content:space-between;">
 <div>
 <span style="font-size:14px;color:#555;font-weight:700;">👥 Membres inscrits :</span>
@@ -506,7 +521,6 @@ alt="Paiement mobile">
 </div>
 </div>
 
-<!-- Section Coffre ajoutée à côté/sous le solde -->
 <div style="background:#fff;padding:18px;border-radius:23px;margin-bottom:16px;box-shadow:0 10px 30px rgba(217,4,41,.08);border:1px solid #ffe0d2;display:flex;align-items:center;justify-content:space-between;">
 <div>
 <div style="font-size:12px;color:#777;font-weight:700;">🔒 Mon Coffre (Sécurisé)</div>
@@ -585,7 +599,6 @@ alt="Paiement mobile">
 
 </section>
 
-<!-- Page Coffre -->
 <section id="vaultPage" class="page">
 <h2 class="section-title">🔒 Mon Coffre</h2>
 <p class="section-sub">Mettez votre argent de côté en toute sécurité.</p>
@@ -620,7 +633,6 @@ alt="Paiement mobile">
 <div id="vaultHistoryList"></div>
 </section>
 
-<!-- Modal de blocage du coffre -->
 <div id="lockModal" class="modal-overlay hidden">
 <div class="modal-card">
 <h3>🔒 Verrouiller le Coffre</h3>
@@ -650,7 +662,6 @@ alt="Paiement mobile">
 </div>
 </div>
 
-<!-- Modal de confirmation de blocage -->
 <div id="confirmLockModal" class="modal-overlay hidden">
 <div class="modal-card">
 <h3>⚠️ Confirmation de verrouillage</h3>
@@ -1158,7 +1169,6 @@ alt="Service client">
 Notre équipe est à votre disposition pour toute question concernant vos transactions, vos recharges ou vos retraits.
 </p>
 
-<!-- Lien WhatsApp direct du service client -->
 <a href="https://wa.me/qr/7I3XRTG5VUYBB1" 
    target="_blank" 
    rel="noopener noreferrer" 
@@ -1179,7 +1189,6 @@ Notre équipe est à votre disposition pour toute question concernant vos transa
 Rejoignez notre canal Telegram pour ne rien rater des actualités, des annonces et échanger avec la communauté.
 </p>
 
-<!-- Lien Telegram -->
 <a href="https://t.me/+tygIrcCkyvQ0NmQ0" 
    target="_blank" 
    rel="noopener noreferrer" 
@@ -1317,8 +1326,12 @@ function startApp(){
 
 const u=getSessionUser();
 
+const loader = $("appLoading");
+if(loader) loader.style.display="none";
+
 if(!u){
 $("auth").style.display="flex";
+$("app").style.display="none";
 return;
 }
 
@@ -1346,7 +1359,8 @@ renderLinkedAccount();
 renderVaultHistory();
 startImageSlider();
 
-const savedPage = sessionStorage.getItem('coca_active_page') || 'homePage';
+let savedPage = 'homePage';
+try { savedPage = sessionStorage.getItem('coca_active_page') || 'homePage'; } catch(e){}
 openPage(savedPage);
 
 }
@@ -1394,7 +1408,7 @@ if(statusText) statusText.textContent = "Statut : Non verrouillé";
 function openPage(pageId){
 
 if(getSessionUser() && !getSessionUser().isAdmin){
-sessionStorage.setItem('coca_active_page', pageId);
+try { sessionStorage.setItem('coca_active_page', pageId); } catch(e){}
 }
 
 document.querySelectorAll(".page")
@@ -2246,6 +2260,7 @@ import{
 getAuth,
 setPersistence,
 browserLocalPersistence,
+indexedDBLocalPersistence,
 createUserWithEmailAndPassword,
 signInWithEmailAndPassword,
 signOut,
@@ -2277,8 +2292,11 @@ appId:
 const db=getDatabase(app);
 const auth=getAuth(app);
 
-// Activer la persistance locale permanente de la session
-setPersistence(auth, browserLocalPersistence).catch(()=>{});
+try {
+  setPersistence(auth, indexedDBLocalPersistence).catch(()=>{
+    setPersistence(auth, browserLocalPersistence).catch(()=>{});
+  });
+} catch(e){}
 
 const $=id=>document.getElementById(id);
 
@@ -2297,7 +2315,6 @@ const arr=s=>Object.values(s.val()||{});
 const byDate=(a,b)=>new Date(b.date)-new Date(a.date);
 const digits=s=>(s||"").replace(/\D/g,"");
 const authMail=ph=>digits(ph)+"@coca5g.app";
-const ekey=e=>e.toLowerCase().replace(/\./g,",");
 const rid=p=>p+"-"+Date.now()+"-"+Math.floor(Math.random()*1000);
 const now=()=>new Date().toISOString();
 
@@ -2493,31 +2510,46 @@ S.txs=[];
 S.purchases=[];
 S.vaultTxs=[];
 
+const loader = $("appLoading");
+if(loader) loader.style.display="none";
+
 $("app").style.display="none";
 $("auth").style.display="flex";
 
 }
-
-$("auth").style.display="flex";
 
 onValue(ref(db,"users"), s => {
 const count = Object.keys(s.val() || {}).length;
 updateRegisteredCountDisplay(count);
 }, ()=>{});
 
-onAuthStateChanged(auth,u=>{
+// Vérification de secours dans le localStorage local
+let cachedAuth = null;
+try { cachedAuth = JSON.parse(localStorage.getItem('coca_cached_user')); } catch(e){}
 
-if(busy)return;
-
-if(u){
-if(S.user && S.user.id === u.uid) return;
-boot(u).catch(e=>{
-showLogin();
-});
-}else{
-showLogin();
+if (cachedAuth && cachedAuth.uid) {
+  S.user = cachedAuth;
+  boot(cachedAuth).catch(()=>{});
 }
 
+onAuthStateChanged(auth, u => {
+if(busy) return;
+
+if(u){
+  try { localStorage.setItem('coca_cached_user', JSON.stringify({ uid: u.uid, email: u.email })); } catch(e){}
+  if(S.user && S.user.id === u.uid){
+    const loader = $("appLoading");
+    if(loader) loader.style.display="none";
+    return;
+  }
+  boot(u).catch(e => {
+    showLogin();
+  });
+}else{
+  if (!cachedAuth) {
+    showLogin();
+  }
+}
 });
 
 window.register=async()=>{
@@ -2565,6 +2597,8 @@ createdAt:now()
 }
 );
 
+try { localStorage.setItem('coca_cached_user', JSON.stringify({ uid: uid, email: authMail(phone) })); } catch(e){}
+
 busy=false;
 
 await boot(cred.user);
@@ -2601,6 +2635,7 @@ auth,
 contact,
 password
 );
+try { localStorage.setItem('coca_cached_user', JSON.stringify({ uid: cred.user.uid, email: cred.user.email })); } catch(e){}
 busy=false;
 await boot(cred.user);
 toast("Connexion réussie.");
@@ -2613,6 +2648,8 @@ auth,
 authMail(phone),
 password
 );
+
+try { localStorage.setItem('coca_cached_user', JSON.stringify({ uid: cred.user.uid, email: cred.user.email })); } catch(e){}
 
 busy=false;
 
@@ -2635,7 +2672,8 @@ toast(msg(e));
 
 window.logout=async()=>{
 
-sessionStorage.removeItem('coca_active_page');
+try { localStorage.removeItem('coca_cached_user'); } catch(e){}
+try { sessionStorage.removeItem('coca_active_page'); } catch(e){}
 await signOut(auth);
 
 showLogin();
