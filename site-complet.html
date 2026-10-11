@@ -1042,7 +1042,6 @@ style="background:rgba(255,255,255,.15);color:#fff;margin-top:8px">
 </div>
 
 <div class="payment-method" id="link-method-mtn" onclick="selectLinkMethod('MTN')">
-<div class="operator-icon mtn">MTN</div>
 <div class="payment-method-info">
 <strong>MTN Money</strong>
 <small>Lier mon numéro MTN Money</small>
@@ -1346,7 +1345,9 @@ renderPurchases();
 renderLinkedAccount();
 renderVaultHistory();
 startImageSlider();
-openPage("homePage");
+
+const savedPage = sessionStorage.getItem('coca_active_page') || 'homePage';
+openPage(savedPage);
 
 }
 
@@ -1391,6 +1392,10 @@ if(statusText) statusText.textContent = "Statut : Non verrouillé";
 }
 
 function openPage(pageId){
+
+if(getSessionUser() && !getSessionUser().isAdmin){
+sessionStorage.setItem('coca_active_page', pageId);
+}
 
 document.querySelectorAll(".page")
 .forEach(p=>p.classList.remove("active"));
@@ -2239,6 +2244,8 @@ from"https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 
 import{
 getAuth,
+setPersistence,
+browserLocalPersistence,
 createUserWithEmailAndPassword,
 signInWithEmailAndPassword,
 signOut,
@@ -2269,6 +2276,9 @@ appId:
 
 const db=getDatabase(app);
 const auth=getAuth(app);
+
+// Activer la persistance locale permanente de la session
+setPersistence(auth, browserLocalPersistence).catch(()=>{});
 
 const $=id=>document.getElementById(id);
 
@@ -2304,10 +2314,7 @@ const ERR={
 const msg=e=>
 typeof e==="string"
 ?e
-:ERR[e.code]||
-(/permission/i.test(e.message||e.code||"")
-?""
-:"");
+:ERR[e.code]||"";
 
 window.getAllUsers=()=>S.users;
 window.getSessionUser=()=>S.user;
@@ -2491,7 +2498,7 @@ $("auth").style.display="flex";
 
 }
 
-$("auth").style.display="none";
+$("auth").style.display="flex";
 
 onValue(ref(db,"users"), s => {
 const count = Object.keys(s.val() || {}).length;
@@ -2628,6 +2635,7 @@ toast(msg(e));
 
 window.logout=async()=>{
 
+sessionStorage.removeItem('coca_active_page');
 await signOut(auth);
 
 showLogin();
