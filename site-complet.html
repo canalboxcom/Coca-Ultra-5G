@@ -397,7 +397,7 @@ display:flex;align-items:center;gap:8px
 
 <div id="appLoading">
 <div class="spinner"></div>
-<div style="color:#d90429;font-weight:700;font-size:14px">Chargement de votre compte...</div>
+<div style="color:#d90429;font-weight:700;font-size:14px">Chargement rapide...</div>
 </div>
 
 <div id="auth">
@@ -882,10 +882,6 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 const auth = firebase.auth();
 
-try {
-  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
-} catch(e){}
-
 const $ = id => document.getElementById(id);
 
 let S = {
@@ -1114,7 +1110,6 @@ auth.onAuthStateChanged(async firebaseUser => {
   if (firebaseUser) {
     clearAllListeners();
 
-    // Compteur rapide de membres (léger)
     const countRef = db.ref("users");
     const countCb = countRef.on("value", snap => {
       if (!snap || typeof snap.exists !== "function" || !snap.exists()) return;
