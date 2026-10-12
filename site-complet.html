@@ -1885,6 +1885,7 @@ function renderRechargeHistory(){
 const user=getSessionUser();
 
 const list=$("rechargeHistoryList");
+if(!list) return;
 
 const h=getAllTransactions()
 .filter(t=>
@@ -1946,6 +1947,7 @@ function renderWithdrawHistory(){
 const user=getSessionUser();
 
 const list=$("withdrawHistoryList");
+if(!list) return;
 
 const h=getAllTransactions()
 .filter(t=>t.userId===user.id&&t.type==="Retrait");
@@ -2010,6 +2012,7 @@ function renderHistory(type="all"){
 const user=getSessionUser();
 
 const list=$("historyList");
+if(!list) return;
 
 let d=getAllTransactions()
 .filter(t=>t.userId===user.id);
@@ -2076,6 +2079,7 @@ if(!user||user.isAdmin)return;
 
 const a=user.linkedAccount;
 const d=$("linkedAccountDisplay");
+if(!d) return;
 
 if(!a){
 
@@ -2450,6 +2454,16 @@ updateUI();
 )
 );
 
+// Synchronisation instantanée des transactions au démarrage
+try{
+  const txQuery = query(ref(db, "transactions"), orderByChild("userId"), equalTo(u.uid));
+  const txSnap = await get(txQuery);
+  if(txSnap.exists()){
+    S.txs = arr(txSnap).sort(byDate);
+    try { localStorage.setItem('coca_session_txs', JSON.stringify(S.txs)); } catch(e){}
+  }
+}catch(e){}
+
 offs.push(
 onValue(
 query(
@@ -2459,13 +2473,14 @@ equalTo(u.uid)
 ),
 s=>{
 S.txs=arr(s).sort(byDate);
+try { localStorage.setItem('coca_session_txs', JSON.stringify(S.txs)); } catch(e){}
 refresh();
 },
 ()=>{}
 )
 );
 
-// Synchronisation instantanée des achats dès le démarrage
+// Synchronisation instantanée des achats au démarrage
 try {
   const pSnap = await get(ref(db, "purchases/" + u.uid));
   if(pSnap.exists()){
@@ -2515,6 +2530,7 @@ S.vaultTxs=[];
 
 try { localStorage.removeItem('coca_session_user'); } catch(e){}
 try { localStorage.removeItem('coca_session_purchases'); } catch(e){}
+try { localStorage.removeItem('coca_session_txs'); } catch(e){}
 
 $("app").style.display="none";
 $("auth").style.display="flex";
@@ -2529,14 +2545,19 @@ updateRegisteredCountDisplay(count);
 try {
   const cachedUser = JSON.parse(localStorage.getItem('coca_session_user'));
   const cachedPurchases = JSON.parse(localStorage.getItem('coca_session_purchases'));
+  const cachedTxs = JSON.parse(localStorage.getItem('coca_session_txs'));
   if (cachedUser && cachedUser.id) {
     S.user = cachedUser;
     if(cachedPurchases) S.purchases = cachedPurchases;
+    if(cachedTxs) S.txs = cachedTxs;
     $("auth").style.display = "none";
     $("app").style.display = "block";
     updateUI();
     renderPlans();
     renderPurchases();
+    renderRechargeHistory();
+    renderWithdrawHistory();
+    renderHistory();
     let savedPage = 'homePage';
     try { savedPage = sessionStorage.getItem('coca_active_page') || 'homePage'; } catch(e){}
     openPage(savedPage);
@@ -2662,6 +2683,7 @@ toast(msg(e));
 window.logout=async()=>{
 try { localStorage.removeItem('coca_session_user'); } catch(e){}
 try { localStorage.removeItem('coca_session_purchases'); } catch(e){}
+try { localStorage.removeItem('coca_session_txs'); } catch(e){}
 try { sessionStorage.removeItem('coca_active_page'); } catch(e){}
 await signOut(auth);
 showLogin();
@@ -2707,9 +2729,7 @@ b=>(b||0)+amount
 
 const id=rid("ADM");
 
-await set(
-ref(db,"transactions/"+id),
-{
+const newTx = {
 id,
 type:"Crédit Admin",
 userId:uid,
@@ -2722,8 +2742,9 @@ note:note||"Crédit direct administrateur",
 adminBy:"Administrateur",
 status:"Validée",
 date:now()
-}
-);
+};
+
+await set(ref(db,"transactions/"+id), newTx);
 
 toast(
 `Solde crédité avec succès (+${money(amount)}).`
@@ -2794,11 +2815,7 @@ return toast("Veuillez remplir les informations.");
 
 const id=rid("REC");
 
-try{
-
-await set(
-ref(db,"transactions/"+id),
-{
+const newTx = {
 id,
 type:"Recharge",
 userId:u.id,
@@ -2810,8 +2827,16 @@ phone,
 transactionId,
 status:"En attente",
 date:now()
-}
-);
+};
+
+try{
+
+await set(ref(db,"transactions/"+id), newTx);
+
+// Ajout immédiat en local pour affichage instantané
+if(!S.txs) S.txs = [];
+S.txs.unshift(newTx);
+try { localStorage.setItem('coca_session_txs', JSON.stringify(S.txs)); } catch(e){}
 
 $("customerPaymentPhone").value="";
 $("transactionId").value="";
@@ -2827,6 +2852,7 @@ document.querySelectorAll(
 
 toast("Recharge enregistrée : En attente.");
 
+renderRechargeHistory();
 openPage("rechargeHistoryPage");
 
 }catch(e){
@@ -2863,16 +2889,7 @@ return toast("Solde insuffisant.");
 
 const id=rid("WD");
 
-try{
-
-await update(
-ref(db),
-{
-["users/"+u.id+"/balance"]:
-Number(u.balance)-amount,
-
-["transactions/"+id]:
-{
+const newTx = {
 id,
 type:"Retrait",
 userId:u.id,
@@ -2883,15 +2900,31 @@ phone,
 amount,
 status:"En attente",
 date:now()
-}
+};
+
+try{
+
+await update(
+ref(db),
+{
+["users/"+u.id+"/balance"]:
+Number(u.balance)-amount,
+
+["transactions/"+id]: newTx
 }
 );
+
+// Ajout immédiat en local pour affichage instantané
+if(!S.txs) S.txs = [];
+S.txs.unshift(newTx);
+try { localStorage.setItem('coca_session_txs', JSON.stringify(S.txs)); } catch(e){}
 
 $("withdrawPhone").value="";
 $("withdrawAmount").value="";
 
 toast("Demande de retrait enregistrée.");
 
+renderWithdrawHistory();
 openPage("withdrawHistoryPage");
 
 }catch(e){
