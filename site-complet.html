@@ -14,7 +14,7 @@ button{cursor:pointer;border:0}
 .hidden{display:none!important}
 
 #appLoading{
-position:fixed;inset:0;background:#fff7f2;display:none;
+position:fixed;inset:0;background:#fff7f2;display:flex;
 flex-direction:column;justify-content:center;align-items:center;z-index:9999
 }
 .spinner{
@@ -25,7 +25,7 @@ animation:spin 1s linear infinite;margin-bottom:15px
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 
 #auth{
-min-height:100vh;display:flex;justify-content:center;align-items:center;
+min-height:100vh;display:none;justify-content:center;align-items:center;
 padding:20px;background:radial-gradient(circle at top left,#ff7a00 0%,transparent 28%),
 radial-gradient(circle at bottom right,#d90429 0%,transparent 30%),
 linear-gradient(135deg,#fff,#fff1ec)
@@ -913,7 +913,11 @@ const ERR = {
   "auth/too-many-requests": "Trop de tentatives. Réessayez plus tard.",
   "auth/network-request-failed": "Pas de connexion internet."
 };
-const msg = e => typeof e === "string" ? e : ERR[e.code] || e.message || "Erreur";
+const msg = e => {
+  if (!e) return "Erreur inconnue";
+  if (typeof e === "string") return e;
+  return ERR[e.code] || e.message || "Erreur";
+};
 
 const PAYMENT_NUMBERS = {
   WAVE: "+225 07 87 59 11 84",
@@ -964,6 +968,7 @@ function showAuth(type){
 }
 
 function startApp(){
+  $("appLoading").style.display = "none";
   const u = S.user;
   if(!u){
     $("auth").style.display = "flex";
@@ -1096,44 +1101,52 @@ function refresh(){
   renderVaultHistory();
 }
 
-// Écoute globale de Firebase
-auth.onAuthStateChanged(async firebaseUser => {
-  if(busy) return;
-  if(firebaseUser){
-    offs.forEach(f => f());
-    offs = [];
+function clearAllListeners() {
+  offs.forEach(f => {
+    try { if (typeof f === 'function') f(); } catch(e){}
+  });
+  offs = [];
+}
 
-    // Ecouter la liste globale des utilisateurs
-    offs.push(db.ref("users").on("value", snap => {
+auth.onAuthStateChanged(async firebaseUser => {
+  if (busy) return;
+
+  if (firebaseUser) {
+    clearAllListeners();
+
+    // Compteur rapide de membres (léger)
+    const countRef = db.ref("users");
+    const countCb = countRef.on("value", snap => {
+      if (!snap || typeof snap.exists !== "function" || !snap.exists()) return;
       const allU = snap.val() || {};
       S.users = allU;
       const count = Object.keys(allU).length;
       const counterEl = $("registeredCount");
       if(counterEl) counterEl.textContent = count === 1 ? "1 personne" : count + " personnes";
+    });
+    offs.push(() => countRef.off("value", countCb));
 
-      if(S.user && S.user.isAdmin){
-        renderAdminDashboard();
-      }
-    }));
-
-    // Vérifier si admin
     let isAdmin = false;
     try {
       const adminSnap = await db.ref("admins/" + firebaseUser.uid).once("value");
-      isAdmin = adminSnap.exists();
+      if (adminSnap && typeof adminSnap.exists === "function" && adminSnap.exists()) {
+        isAdmin = true;
+      }
     } catch(e){}
 
     if(isAdmin){
       S.user = { id: firebaseUser.uid, name: "Administrateur", email: "", phone: "", isAdmin: true };
-      offs.push(db.ref("transactions").on("value", snap => {
+      const txRef = db.ref("transactions");
+      const txCb = txRef.on("value", snap => {
+        if (!snap || typeof snap.exists !== "function" || !snap.exists()) return;
         S.txs = Object.values(snap.val() || {}).sort((a,b)=>new Date(b.date||b.createdAt||0)-new Date(a.date||a.createdAt||0));
         renderAdminDashboard();
-      }));
+      });
+      offs.push(() => txRef.off("value", txCb));
       startApp();
     } else {
-      // Utilisateur normal
       let userSnap = await db.ref("users/" + firebaseUser.uid).once("value");
-      if(!userSnap.exists()){
+      if(!userSnap || typeof userSnap.exists !== "function" || !userSnap.exists()){
         const defUser = {
           id: firebaseUser.uid,
           name: firebaseUser.displayName || "Utilisateur",
@@ -1150,24 +1163,21 @@ auth.onAuthStateChanged(async firebaseUser => {
         S.user = { ...userSnap.val(), id: firebaseUser.uid };
       }
 
-      try { localStorage.setItem('coca_session_user', JSON.stringify(S.user)); } catch(e){}
-
-      // Synchroniser le profil utilisateur en temps réel
-      offs.push(db.ref("users/" + firebaseUser.uid).on("value", snap => {
-        if(snap.exists()){
+      const myUserRef = db.ref("users/" + firebaseUser.uid);
+      const myUserCb = myUserRef.on("value", snap => {
+        if(snap && typeof snap.exists === "function" && snap.exists() && S.user){
           S.user = { ...snap.val(), id: firebaseUser.uid };
-          try { localStorage.setItem('coca_session_user', JSON.stringify(S.user)); } catch(e){}
           updateUI();
         }
-      }));
+      });
+      offs.push(() => myUserRef.off("value", myUserCb));
 
-      // Synchroniser les transactions privées et globales pour l'utilisateur
       let privTxs = [];
       let globTxs = [];
 
       const processTransactionsMerge = () => {
+        if(!S.user) return;
         const map = new Map();
-        // Filtrer globalement par userId, par numéro de téléphone ou email
         const userPhoneDigits = digits(S.user.phone || "");
         const userEmail = (S.user.email || "").toLowerCase();
         const userId = S.user.id;
@@ -1190,49 +1200,45 @@ auth.onAuthStateChanged(async firebaseUser => {
         refresh();
       };
 
-      offs.push(db.ref("userTransactions/" + firebaseUser.uid).on("value", snap => {
-        privTxs = Object.values(snap.val() || {});
+      const uTxRef = db.ref("userTransactions/" + firebaseUser.uid);
+      const uTxCb = uTxRef.on("value", snap => {
+        privTxs = (snap && typeof snap.exists === "function" && snap.exists()) ? Object.values(snap.val() || {}) : [];
         processTransactionsMerge();
-      }));
+      });
+      offs.push(() => uTxRef.off("value", uTxCb));
 
-      offs.push(db.ref("transactions").on("value", snap => {
-        globTxs = Object.values(snap.val() || {});
+      const gTxRef = db.ref("transactions");
+      const gTxCb = gTxRef.on("value", snap => {
+        globTxs = (snap && typeof snap.exists === "function" && snap.exists()) ? Object.values(snap.val() || {}) : [];
         processTransactionsMerge();
-      }));
+      });
+      offs.push(() => gTxRef.off("value", gTxCb));
 
-      // Achats VIP
-      offs.push(db.ref("purchases/" + firebaseUser.uid).on("value", snap => {
-        S.purchases = Object.values(snap.val() || {}).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+      const purRef = db.ref("purchases/" + firebaseUser.uid);
+      const purCb = purRef.on("value", snap => {
+        S.purchases = (snap && typeof snap.exists === "function" && snap.exists()) ? Object.values(snap.val() || {}).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)) : [];
         refresh();
-      }));
+      });
+      offs.push(() => purRef.off("value", purCb));
 
-      // Coffre
-      offs.push(db.ref("vaultTransactions/" + firebaseUser.uid).on("value", snap => {
-        S.vaultTxs = Object.values(snap.val() || {}).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+      const vRef = db.ref("vaultTransactions/" + firebaseUser.uid);
+      const vCb = vRef.on("value", snap => {
+        S.vaultTxs = (snap && typeof snap.exists === "function" && snap.exists()) ? Object.values(snap.val() || {}).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)) : [];
         refresh();
-      }));
+      });
+      offs.push(() => vRef.off("value", vCb));
 
       startApp();
     }
   } else {
-    // Si déconnecté, vérifier le cache local
-    try {
-      const cached = JSON.parse(localStorage.getItem('coca_session_user') || 'null');
-      if(cached && cached.id){
-        S.user = cached;
-        startApp();
-        return;
-      }
-    } catch(e){}
     showLogin();
   }
 });
 
 function showLogin(){
-  offs.forEach(f => f());
-  offs = [];
+  clearAllListeners();
   S.user = null;
-  try { localStorage.removeItem('coca_session_user'); } catch(e){}
+  $("appLoading").style.display = "none";
   $("app").style.display = "none";
   $("auth").style.display = "flex";
 }
@@ -1249,6 +1255,7 @@ window.register = async () => {
   if(password.length < 6) return toast("Mot de passe : 6 caractères minimum.");
 
   busy = true;
+  $("appLoading").style.display = "flex";
   try {
     const cred = await auth.createUserWithEmailAndPassword(authMail(phone), password);
     const uid = cred.user.uid;
@@ -1263,11 +1270,11 @@ window.register = async () => {
       createdAt: now()
     };
     await db.ref("users/" + uid).set(newUser);
-    try { localStorage.setItem('coca_session_user', JSON.stringify(newUser)); } catch(e){}
     busy = false;
     toast("Compte créé avec succès.");
   } catch(e){
     busy = false;
+    $("appLoading").style.display = "none";
     toast(msg(e));
   }
 };
@@ -1278,6 +1285,7 @@ window.login = async () => {
   if(!contact || !password) return toast("Remplissez tous les champs.");
 
   busy = true;
+  $("appLoading").style.display = "flex";
   try {
     let emailToUse = contact;
     if(!contact.includes("@")){
@@ -1288,19 +1296,28 @@ window.login = async () => {
     toast("Connexion réussie.");
   } catch(e){
     busy = false;
+    $("appLoading").style.display = "none";
     toast(msg(e));
   }
 };
 
 window.logout = async () => {
-  try { localStorage.removeItem('coca_session_user'); } catch(e){}
-  try { sessionStorage.removeItem('coca_active_page'); } catch(e){}
-  await auth.signOut();
-  showLogin();
-  toast("Déconnexion effectuée.");
+  try {
+    busy = true;
+    clearAllListeners();
+    S.user = null;
+    try { sessionStorage.removeItem('coca_active_page'); } catch(e){}
+    await auth.signOut();
+    busy = false;
+    showLogin();
+    toast("Déconnexion effectuée.");
+  } catch(e){
+    busy = false;
+    showLogin();
+    toast("Déconnecté.");
+  }
 };
 
-// Fonctions Admin
 function renderAdminDashboard(){
   const usersList = Object.values(S.users || {});
   const txsList = S.txs || [];
@@ -1436,7 +1453,7 @@ window.processTransaction = async (txId, status) => {
   if(!confirm(status === "Validé" ? "Valider cette opération ?" : "Rejeter cette opération ?")) return;
   try {
     const txSnap = await db.ref(`transactions/${txId}`).once("value");
-    if(!txSnap.exists()) return toast("Transaction introuvable.");
+    if(!txSnap || typeof txSnap.exists !== "function" || !txSnap.exists()) return toast("Transaction introuvable.");
     const tx = txSnap.val();
     const userId = tx.userId || tx.uid;
 
@@ -1452,7 +1469,7 @@ window.processTransaction = async (txId, status) => {
 
     if(status === "Validé" && (tx.type === "Recharge" || tx.type === "Crédit Admin")){
       const userSnap = await db.ref(`users/${userId}`).once("value");
-      if(userSnap.exists()){
+      if(userSnap && typeof userSnap.exists === "function" && userSnap.exists()){
         const uData = userSnap.val();
         const curBal = Number(uData.balance || uData.solde || 0);
         const amt = Number(tx.amount || tx.montant || 0);
@@ -1461,7 +1478,7 @@ window.processTransaction = async (txId, status) => {
       }
     } else if(status === "Rejeté" && tx.type === "Retrait"){
       const userSnap = await db.ref(`users/${userId}`).once("value");
-      if(userSnap.exists()){
+      if(userSnap && typeof userSnap.exists === "function" && userSnap.exists()){
         const uData = userSnap.val();
         const curBal = Number(uData.balance || uData.solde || 0);
         const amt = Number(tx.amount || tx.montant || 0);
@@ -1477,14 +1494,6 @@ window.processTransaction = async (txId, status) => {
   }
 };
 
-window.resetAllData = () => {
-  if(!confirm("⚠️ Voulez-vous vraiment supprimer TOUS les utilisateurs et TOUTES les transactions ?")) return;
-  db.ref().update({ users: null, transactions: null, userTransactions: null, purchases: null, vaultTransactions: null })
-    .then(() => alert("✅ Base réinitialisée avec succès !"))
-    .catch(e => alert("❌ Erreur : " + e.message));
-};
-
-// Fonctions Client
 window.renderPlans = () => {
   const html = plans.map(p => `
     <div class="plan">
