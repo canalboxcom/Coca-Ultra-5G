@@ -2532,15 +2532,19 @@ onAuthStateChanged(auth, u => {
 if(busy) return;
 
 if(u){
-if(S.user && S.user.id === u.uid){
+// Si l'utilisateur est déjà connecté, on s'assure de masquer le loader et l'auth immédiatement
 const loader = $("appLoading");
 if(loader) loader.style.display="none";
+
+if(S.user && S.user.id === u.uid){
 return;
 }
 boot(u).catch(e => {
-showLogin();
+// En cas d'erreur de chargement de la base, on ne renvoie pas forcément vers auth si un cookie/token existe
+console.error(e);
 });
 }else{
+// Aucun utilisateur connecté : on affiche l'authentification
 showLogin();
 }
 });
