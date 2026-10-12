@@ -1701,6 +1701,7 @@ function renderPurchases(){
 const user=getSessionUser();
 
 const list=$("purchasesList");
+if(!list) return;
 
 const items=getPurchases()
 .filter(p=>p.userId===user.id);
@@ -2433,7 +2434,6 @@ id:u.uid
 };
 }
 
-// Sauvegarde immédiate dans localStorage pour éviter la redirection au F5
 try { localStorage.setItem('coca_session_user', JSON.stringify(S.user)); } catch(e){}
 
 offs.push(
@@ -2465,11 +2465,21 @@ refresh();
 )
 );
 
+// Synchronisation instantanée des achats dès le démarrage
+try {
+  const pSnap = await get(ref(db, "purchases/" + u.uid));
+  if(pSnap.exists()){
+    S.purchases = arr(pSnap).sort(byDate);
+    try { localStorage.setItem('coca_session_purchases', JSON.stringify(S.purchases)); } catch(e){}
+  }
+} catch(e){}
+
 offs.push(
 onValue(
 ref(db,"purchases/"+u.uid),
 s=>{
 S.purchases=arr(s).sort(byDate);
+try { localStorage.setItem('coca_session_purchases', JSON.stringify(S.purchases)); } catch(e){}
 refresh();
 },
 ()=>{}
@@ -2503,6 +2513,9 @@ S.txs=[];
 S.purchases=[];
 S.vaultTxs=[];
 
+try { localStorage.removeItem('coca_session_user'); } catch(e){}
+try { localStorage.removeItem('coca_session_purchases'); } catch(e){}
+
 $("app").style.display="none";
 $("auth").style.display="flex";
 }
@@ -2512,15 +2525,18 @@ const count = Object.keys(s.val() || {}).length;
 updateRegisteredCountDisplay(count);
 }, ()=>{});
 
-// RESTAURATION INSTANTANÉE PAR LE CACHE LOCAL (Règle le problème d'actualisation)
+// Restauration instantanée depuis le cache local au chargement
 try {
   const cachedUser = JSON.parse(localStorage.getItem('coca_session_user'));
+  const cachedPurchases = JSON.parse(localStorage.getItem('coca_session_purchases'));
   if (cachedUser && cachedUser.id) {
     S.user = cachedUser;
+    if(cachedPurchases) S.purchases = cachedPurchases;
     $("auth").style.display = "none";
     $("app").style.display = "block";
     updateUI();
     renderPlans();
+    renderPurchases();
     let savedPage = 'homePage';
     try { savedPage = sessionStorage.getItem('coca_active_page') || 'homePage'; } catch(e){}
     openPage(savedPage);
@@ -2536,7 +2552,6 @@ if(u){
     showLogin();
   });
 }else{
-  // Si pas de session Firebase et pas de cache valide
   if(!localStorage.getItem('coca_session_user')) {
     showLogin();
   }
@@ -2646,6 +2661,7 @@ toast(msg(e));
 
 window.logout=async()=>{
 try { localStorage.removeItem('coca_session_user'); } catch(e){}
+try { localStorage.removeItem('coca_session_purchases'); } catch(e){}
 try { sessionStorage.removeItem('coca_active_page'); } catch(e){}
 await signOut(auth);
 showLogin();
@@ -2723,57 +2739,44 @@ toast(msg(e));
 
 };
 
-window.processTransaction=async(txId,status)=>{
+window.processTransaction = async (txId, status) => {
+if(!S.user || !S.user.isAdmin) return;
 
-if(!S.user||!S.user.isAdmin)return;
+if(!confirm(status === "Validée" ? "Valider cette opération ?" : "Rejeter cette opération ?")) return;
 
-if(
-!confirm(
-status==="Validée"
-?"Valider cette opération ?"
-:"Rejeter cette opération ?"
-)
-)
-return;
+try {
+  const txRef = ref(db, "transactions/" + txId);
+  const txSnap = await get(txRef);
+  if(!txSnap.exists()) return toast("Transaction introuvable.");
+  
+  const tx = txSnap.val();
+  if(tx.status !== "En attente") {
+    return toast("Cette transaction a déjà été traitée.");
+  }
 
-try{
+  await update(txRef, {
+    status: status,
+    processedAt: now(),
+    adminBy: "Administrateur"
+  });
 
-const r=
-await runTransaction(
-ref(db,"transactions/"+txId),
-cur=>
-cur&&cur.status==="En attente"
-?{...cur,status,processedAt:now()}
-:undefined
-);
+  if(status === "Validée" && (tx.type === "Recharge" || tx.type === "Crédit Admin")) {
+    await runTransaction(
+      ref(db, "users/" + tx.userId + "/balance"),
+      b => (b || 0) + Number(tx.amount)
+    );
+  }
+  else if(status === "Rejetée" && tx.type === "Retrait") {
+    await runTransaction(
+      ref(db, "users/" + tx.userId + "/balance"),
+      b => (b || 0) + Number(tx.amount)
+    );
+  }
 
-if(!r.committed)
-return toast("Transaction déjà traitée.");
-
-const tx=r.snapshot.val();
-
-if(
-(status==="Validée"&&tx.type==="Recharge")||
-(status==="Rejetée"&&tx.type==="Retrait")
-){
-
-await runTransaction(
-ref(db,"users/"+tx.userId+"/balance"),
-b=>(b||0)+Number(tx.amount)
-);
-
+  toast(`Transaction ${status.toLowerCase()} avec succès.`);
+} catch(e) {
+  toast(msg(e));
 }
-
-toast(
-`Transaction ${status.toLowerCase()}.`
-);
-
-}catch(e){
-
-toast(msg(e));
-
-}
-
 };
 
 window.confirmRecharge=async()=>{
@@ -3053,60 +3056,55 @@ Date : ${formatDate(i.date)}
 `).join("");
 }
 
-window.investPlan=async id=>{
+window.investPlan = async id => {
+const u = S.user;
+const plan = plans.find(p => p.id === id);
+if(!u || !plan) return;
 
-const u=S.user;
-
-const plan=plans.find(p=>p.id===id);
-
-if(!u||!plan)return;
-
-if(Number(u.balance||0)<plan.amount){
-
-toast("Solde insuffisant. Veuillez recharger.");
-
-return openPage("rechargePage");
-
+if(Number(u.balance || 0) < plan.amount) {
+  toast("Solde insuffisant. Veuillez recharger.");
+  return openPage("rechargePage");
 }
 
-const pid=rid("INV");
+const pid = rid("INV");
 
-try{
+try {
+  await update(ref(db), {
+    ["users/" + u.id + "/balance"]: Number(u.balance) - plan.amount,
+    ["purchases/" + u.id + "/" + pid]: {
+      id: pid,
+      userId: u.id,
+      planId: plan.id,
+      planName: plan.name,
+      amount: plan.amount,
+      daily: plan.daily,
+      days: plan.days,
+      date: now(),
+      status: "Investissement enregistré"
+    }
+  });
 
-await update(
-ref(db),
-{
-["users/"+u.id+"/balance"]:
-Number(u.balance)-plan.amount,
+  toast("Investissement enregistré.");
+  
+  if(!S.purchases) S.purchases = [];
+  S.purchases.unshift({
+    id: pid,
+    userId: u.id,
+    planId: plan.id,
+    planName: plan.name,
+    amount: plan.amount,
+    daily: plan.daily,
+    days: plan.days,
+    date: now(),
+    status: "Investissement enregistré"
+  });
+  try { localStorage.setItem('coca_session_purchases', JSON.stringify(S.purchases)); } catch(e){}
+  renderPurchases();
 
-["purchases/"+u.id+"/"+pid]:
-{
-id:pid,
-userId:u.id,
-planId:plan.id,
-planName:plan.name,
-amount:plan.amount,
-daily:plan.daily,
-days:plan.days,
-date:now(),
-status:"Investissement enregistré"
+  setTimeout(() => openPage("purchasesPage"), 400);
+} catch(e) {
+  toast(msg(e));
 }
-}
-);
-
-toast("Investissement enregistré.");
-
-setTimeout(
-()=>openPage("purchasesPage"),
-400
-);
-
-}catch(e){
-
-toast(msg(e));
-
-}
-
 };
 
 window.saveLinkedAccount=async()=>{
@@ -3143,7 +3141,7 @@ document.querySelectorAll(
 )
 .forEach(el=>el.classList.remove("selected"));
 
-toast("Votre compte a été lié.");
+toast("Compte lié avec succès.");
 
 setTimeout(
 ()=>openPage("cardPage"),
