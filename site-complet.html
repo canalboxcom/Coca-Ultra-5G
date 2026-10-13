@@ -1790,7 +1790,7 @@ ${formatStatusBadge("Validée")}
 
 <div class="purchase-data">
 <small>DURÉE RESTANTE</small>
-<strong>${i.daysRemaining || i.days} jours</strong>
+<strong>${i.daysRemaining ?? i.days} jours</strong>
 </div>
 
 <div class="purchase-data">
@@ -2371,54 +2371,52 @@ renderVaultHistory();
 
 }
 
-// Fonction pour calculer et distribuer les gains journaliers des investissements
+// Crédit automatique des gains journaliers (un crédit par jour écoulé, sans doublon)
 async function processDailyEarnings(userId) {
-    const purchasesRef = ref(db, "purchases/" + userId);
-    
     try {
-        const purchasesSnap = await get(purchasesRef);
-        if (!purchasesSnap.exists()) return;
+        const snap = await get(ref(db, "purchases/" + userId));
+        if (!snap.exists()) return;
 
-        const now = new Date();
-        let totalEarningsToAdd = 0;
-        const updates = {};
+        const DAY = 24 * 60 * 60 * 1000;
+        let total = 0;
 
-        purchasesSnap.forEach((childSnap) => {
-            const purchase = childSnap.val();
-            const lastCredited = new Date(purchase.lastCreditedDate || purchase.date);
-            
-            const diffTime = now - lastCredited;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        for (const key of Object.keys(snap.val())) {
+            let earn = 0;
 
-            if (diffDays > 0 && (purchase.daysRemaining === undefined || purchase.daysRemaining > 0)) {
-                const daysRemaining = purchase.daysRemaining !== undefined ? purchase.daysRemaining : purchase.days;
-                const daysToCredit = Math.min(diffDays, daysRemaining);
-                
-                if (daysToCredit > 0) {
-                    const earnings = daysToCredit * Number(purchase.daily);
-                    totalEarningsToAdd += earnings;
-                    
-                    const newDaysRemaining = daysRemaining - daysToCredit;
-                    updates[`purchases/${userId}/${childSnap.key}/lastCreditedDate`] = now.toISOString();
-                    updates[`purchases/${userId}/${childSnap.key}/daysRemaining`] = newDaysRemaining;
-                    
-                    if (newDaysRemaining <= 0) {
-                        updates[`purchases/${userId}/${childSnap.key}/status`] = "Terminé";
-                    }
+            const res = await runTransaction(
+                ref(db, "purchases/" + userId + "/" + key),
+                cur => {
+                    earn = 0;
+                    if (!cur) return cur;
+
+                    const last = new Date(cur.lastCreditedDate || cur.date).getTime();
+                    const left = cur.daysRemaining ?? cur.days;
+                    const days = Math.min(Math.floor((Date.now() - last) / DAY), left);
+
+                    if (days <= 0) return; // rien à créditer
+
+                    earn = days * Number(cur.daily);
+                    return {
+                        ...cur,
+                        daysRemaining: left - days,
+                        lastCreditedDate: new Date(last + days * DAY).toISOString(),
+                        status: (left - days) <= 0 ? "Terminé" : cur.status
+                    };
                 }
-            }
-        });
+            );
 
-        if (totalEarningsToAdd > 0) {
-            await runTransaction(ref(db, "users/" + userId + "/balance"), (currentBalance) => {
-                return (currentBalance || 0) + totalEarningsToAdd;
-            });
+            if (res.committed && earn > 0) total += earn;
+        }
 
-            await update(ref(db), updates);
-            toast(`Gains journaliers crédités : +${money(totalEarningsToAdd)}`);
+        if (total > 0) {
+            await runTransaction(
+                ref(db, "users/" + userId + "/balance"),
+                b => (b || 0) + total
+            );
+            toast(`Gains journaliers crédités : +${money(total)}`);
         }
     } catch (error) {
-        console.error("Erreur lors du traitement des gains journaliers :", error);
+        console.error("Erreur gains journaliers :", error);
     }
 }
 
@@ -2500,6 +2498,8 @@ id:u.uid
 
 // Exécuter le calcul des gains journaliers dès le lancement/connexion
 await processDailyEarnings(u.uid);
+clearInterval(window.earnTimer);
+window.earnTimer = setInterval(() => processDailyEarnings(u.uid), 60 * 60 * 1000);
 
 offs.push(
 onValue(
@@ -2823,6 +2823,8 @@ window.submitWithdrawal = async function() {
 };
 
 function showLogin(){
+
+clearInterval(window.earnTimer);
 
 offs.forEach(f=>f());
 offs=[];
