@@ -396,7 +396,7 @@ display:flex;align-items:center;gap:8px
 
 <body>
 
-<!-- Écran de chargement initial pour éviter le flash d'inscription -->
+<!-- Écran de chargement affiché temporairement au démarrage -->
 <div id="appLoading">
 <div class="spinner"></div>
 <div style="color:#d90429;font-weight:700;font-size:14px">Chargement de votre compte...</div>
@@ -1484,21 +1484,17 @@ function formatStatusBadge(status){
 let display=status;
 let cssClass="pending";
 
-if(status==="Validée"||status==="validee"||status==="validée"||status==="Actif"){
-display="ACTIF";
+if(status==="Validée"||status==="validee"||status==="validée"){
+display="VALIDÉE";
 cssClass="validée";
 }
 else if(status==="En attente"||status==="en-attente"){
 display="EN ATTENTE";
 cssClass="en-attente";
 }
-else if(status==="Rejetée"||status==="rejetée"||status==="rejete"){
+else if(status==="Rejetée"||status==="rejete"||status==="rejetée"){
 display="REJETÉE";
 cssClass="rejetée";
-}
-else if(status==="Terminé"){
-display="TERMINÉ";
-cssClass="gray";
 }
 
 return `<span class="status ${cssClass}">${display}</span>`;
@@ -1722,8 +1718,11 @@ $("investPlans").innerHTML=html;
 function renderPurchases(){
 
 const user=getSessionUser();
+
 const list=$("purchasesList");
-const items=getPurchases().filter(p=>p.userId===user.id);
+
+const items=getPurchases()
+.filter(p=>p.userId===user.id);
 
 if(!items.length){
 
@@ -1774,7 +1773,7 @@ ${formatDate(i.date)}
 
 </div>
 
-${formatStatusBadge(i.status)}
+${formatStatusBadge("Validée")}
 
 </div>
 
@@ -1792,7 +1791,7 @@ ${formatStatusBadge(i.status)}
 
 <div class="purchase-data">
 <small>DURÉE RESTANTE</small>
-<strong>${i.daysRemaining !== undefined ? i.daysRemaining : i.days} jours</strong>
+<strong>${i.daysRemaining || i.days} jours</strong>
 </div>
 
 <div class="purchase-data">
@@ -1803,7 +1802,8 @@ ${formatStatusBadge(i.status)}
 </div>
 
 <div class="received-box">
-✓ Investissement actif et enregistré.
+✓ ${escapeHtml(i.status)}<br>
+Votre achat est enregistré dans votre espace.
 </div>
 
 </div>
@@ -2575,16 +2575,16 @@ window.investPlan = async function(planId) {
     }
 
     try {
-        // 1. Déduire le montant du solde de l'utilisateur
+        // Déduire le montant du solde utilisateur
         await runTransaction(ref(db, "users/" + user.id + "/balance"), (currentBalance) => {
             return (currentBalance || 0) - plan.amount;
         });
 
-        // 2. Enregistrer l'achat dans la base de données (chemin "purchases/{userId}")
+        // Enregistrer l'achat
         const purchaseRef = push(ref(db, "purchases/" + user.id));
         const purchaseId = purchaseRef.key;
         
-        const newPurchase = {
+        await set(purchaseRef, {
             id: purchaseId,
             planId: plan.id,
             planName: plan.name,
@@ -2595,14 +2595,10 @@ window.investPlan = async function(planId) {
             status: "Actif",
             date: now(),
             lastCreditedDate: now()
-        };
+        });
 
-        await set(purchaseRef, newPurchase);
-
-        // 3. Mettre à jour l'affichage local et basculer vers "Mes achats"
         toast("Investissement réussi !");
         openPage("purchasesPage");
-        renderPurchases();
     } catch(e) {
         toast("Erreur lors de l'investissement : " + msg(e));
     }
