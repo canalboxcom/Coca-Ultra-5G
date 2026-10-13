@@ -1721,8 +1721,7 @@ const user=getSessionUser();
 
 const list=$("purchasesList");
 
-const items=getPurchases()
-.filter(p=>p.userId===user.id);
+const items=getPurchases();
 
 if(!items.length){
 
@@ -2575,17 +2574,22 @@ window.investPlan = async function(planId) {
     }
 
     try {
-        // Déduire le montant du solde utilisateur
-        await runTransaction(ref(db, "users/" + user.id + "/balance"), (currentBalance) => {
-            return (currentBalance || 0) - plan.amount;
-        });
+        // Débit sécurisé : annulé si solde insuffisant
+        const res = await runTransaction(
+            ref(db, "users/" + user.id + "/balance"),
+            b => (b || 0) >= plan.amount ? (b || 0) - plan.amount : undefined
+        );
 
-        // Enregistrer l'achat
+        if (!res.committed) {
+            toast("Solde insuffisant pour ce plan.");
+            return;
+        }
+
+        // Enregistrement dans Mes achats
         const purchaseRef = push(ref(db, "purchases/" + user.id));
-        const purchaseId = purchaseRef.key;
-        
         await set(purchaseRef, {
-            id: purchaseId,
+            id: purchaseRef.key,
+            userId: user.id,
             planId: plan.id,
             planName: plan.name,
             amount: plan.amount,
@@ -2600,7 +2604,7 @@ window.investPlan = async function(planId) {
         toast("Investissement réussi !");
         openPage("purchasesPage");
     } catch(e) {
-        toast("Erreur lors de l'investissement : " + msg(e));
+        toast("Erreur lors de l'investissement : " + (msg(e) || e.message));
     }
 };
 
