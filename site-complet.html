@@ -1790,8 +1790,8 @@ ${formatStatusBadge("Validée")}
 </div>
 
 <div class="purchase-data">
-<small>DURÉE</small>
-<strong>${i.days} jours</strong>
+<small>DURÉE RESTANTE</small>
+<strong>${i.daysRemaining || i.days} jours</strong>
 </div>
 
 <div class="purchase-data">
@@ -2261,7 +2261,8 @@ onValue,
 runTransaction,
 query,
 orderByChild,
-equalTo
+equalTo,
+push
 }
 from"https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 
@@ -2300,7 +2301,6 @@ appId:
 const db=getDatabase(app);
 const auth=getAuth(app);
 
-// Assurer la persistance permanente dans le stockage local du navigateur
 setPersistence(auth, browserLocalPersistence).catch(()=>{});
 
 const $=id=>document.getElementById(id);
@@ -2370,6 +2370,57 @@ renderPurchases();
 renderLinkedAccount();
 renderVaultHistory();
 
+}
+
+// Fonction pour calculer et distribuer les gains journaliers des investissements
+async function processDailyEarnings(userId) {
+    const purchasesRef = ref(db, "purchases/" + userId);
+    
+    try {
+        const purchasesSnap = await get(purchasesRef);
+        if (!purchasesSnap.exists()) return;
+
+        const now = new Date();
+        let totalEarningsToAdd = 0;
+        const updates = {};
+
+        purchasesSnap.forEach((childSnap) => {
+            const purchase = childSnap.val();
+            const lastCredited = new Date(purchase.lastCreditedDate || purchase.date);
+            
+            const diffTime = now - lastCredited;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 0 && (purchase.daysRemaining === undefined || purchase.daysRemaining > 0)) {
+                const daysRemaining = purchase.daysRemaining !== undefined ? purchase.daysRemaining : purchase.days;
+                const daysToCredit = Math.min(diffDays, daysRemaining);
+                
+                if (daysToCredit > 0) {
+                    const earnings = daysToCredit * Number(purchase.daily);
+                    totalEarningsToAdd += earnings;
+                    
+                    const newDaysRemaining = daysRemaining - daysToCredit;
+                    updates[`purchases/${userId}/${childSnap.key}/lastCreditedDate`] = now.toISOString();
+                    updates[`purchases/${userId}/${childSnap.key}/daysRemaining`] = newDaysRemaining;
+                    
+                    if (newDaysRemaining <= 0) {
+                        updates[`purchases/${userId}/${childSnap.key}/status`] = "Terminé";
+                    }
+                }
+            }
+        });
+
+        if (totalEarningsToAdd > 0) {
+            await runTransaction(ref(db, "users/" + userId + "/balance"), (currentBalance) => {
+                return (currentBalance || 0) + totalEarningsToAdd;
+            });
+
+            await update(ref(db), updates);
+            toast(`Gains journaliers crédités : +${money(totalEarningsToAdd)}`);
+        }
+    } catch (error) {
+        console.error("Erreur lors du traitement des gains journaliers :", error);
+    }
 }
 
 async function boot(u){
@@ -2448,6 +2499,9 @@ id:u.uid
 };
 }
 
+// Exécuter le calcul des gains journaliers dès le lancement/connexion
+await processDailyEarnings(u.uid);
+
 offs.push(
 onValue(
 ref(db,"users/"+u.uid),
@@ -2504,6 +2558,266 @@ startApp();
 
 }
 
+window.investPlan = async function(planId) {
+    const user = S.user;
+    if(!user) return;
+
+    const plan = plans.find(p => p.id === planId);
+    if(!plan) return;
+
+    if((user.balance || 0) < plan.amount) {
+        toast("Solde insuffisant pour ce plan. Veuillez recharger.");
+        return;
+    }
+
+    if(!confirm(`Voulez-vous investir ${money(plan.amount)} dans le plan ${plan.name} ?`)) {
+        return;
+    }
+
+    try {
+        // Déduire le montant du solde utilisateur
+        await runTransaction(ref(db, "users/" + user.id + "/balance"), (currentBalance) => {
+            return (currentBalance || 0) - plan.amount;
+        });
+
+        // Enregistrer l'achat
+        const purchaseRef = push(ref(db, "purchases/" + user.id));
+        const purchaseId = purchaseRef.key;
+        
+        await set(purchaseRef, {
+            id: purchaseId,
+            planId: plan.id,
+            planName: plan.name,
+            amount: plan.amount,
+            daily: plan.daily,
+            days: plan.days,
+            daysRemaining: plan.days,
+            status: "Actif",
+            date: now(),
+            lastCreditedDate: now()
+        });
+
+        toast("Investissement réussi !");
+        openPage("purchasesPage");
+    } catch(e) {
+        toast("Erreur lors de l'investissement : " + msg(e));
+    }
+};
+
+window.vaultAction = async function(actionType) {
+    const user = S.user;
+    if(!user) return;
+
+    const inputVal = Number($("vaultInputAmount").value);
+    if(!inputVal || inputVal <= 0) {
+        toast("Veuillez saisir un montant valide.");
+        return;
+    }
+
+    const currentBalance = Number(user.balance || 0);
+    const currentVault = Number(user.vault || 0);
+
+    if(actionType === 'keep') {
+        if(inputVal > currentBalance) {
+            toast("Solde disponible insuffisant pour mettre dans le coffre.");
+            return;
+        }
+
+        try {
+            await runTransaction(ref(db, "users/" + user.id + "/balance"), b => (b || 0) - inputVal);
+            await runTransaction(ref(db, "users/" + user.id + "/vault"), v => (v || 0) + inputVal);
+
+            const txRef = push(ref(db, "vaultTransactions/" + user.id));
+            await set(txRef, {
+                id: txRef.key,
+                type: "Mise en coffre",
+                amount: inputVal,
+                date: now()
+            });
+
+            toast(`+${money(inputVal)} ajoutés au coffre.`);
+            $("vaultInputAmount").value = "";
+        } catch(e) {
+            toast("Erreur : " + msg(e));
+        }
+    } else if(actionType === 'withdraw') {
+        if(inputVal > currentVault) {
+            toast("Montant demandé supérieur au contenu du coffre.");
+            return;
+        }
+
+        try {
+            await runTransaction(ref(db, "users/" + user.id + "/vault"), v => (v || 0) - inputVal);
+            await runTransaction(ref(db, "users/" + user.id + "/balance"), b => (b || 0) + inputVal);
+
+            const txRef = push(ref(db, "vaultTransactions/" + user.id));
+            await set(txRef, {
+                id: txRef.key,
+                type: "Retrait du coffre",
+                amount: inputVal,
+                date: now()
+            });
+
+            toast(`+${money(inputVal)} récupérés du coffre.`);
+            $("vaultInputAmount").value = "";
+        } catch(e) {
+            toast("Erreur : " + msg(e));
+        }
+    }
+};
+
+window.renderVaultHistory = function() {
+    const list = $("vaultHistoryList");
+    if(!list) return;
+    const items = S.vaultTxs || [];
+    if(!items.length) {
+        list.innerHTML = `<div class="empty">Aucune opération dans le coffre.</div>`;
+        return;
+    }
+    list.innerHTML = items.map(i => `
+        <div class="history-item">
+            <div class="history-top">
+                <strong>${i.type}</strong>
+                <span>${money(i.amount)}</span>
+            </div>
+            <div class="history-details">
+                Date : ${formatDate(i.date)}
+            </div>
+        </div>
+    `).join("");
+};
+
+window.openLockModal = function() {
+    $("lockModal").classList.remove("hidden");
+};
+
+window.closeLockModal = function() {
+    $("lockModal").classList.add("hidden");
+};
+
+window.toggleCustomDateInput = function() {
+    const val = $("lockDurationSelect").value;
+    $("customDateField").classList.toggle("hidden", val !== "custom");
+};
+
+window.submitLockVault = async function() {
+    const duration = $("lockDurationSelect").value;
+    let targetDate = new Date();
+
+    if(duration === "tomorrow") targetDate.setDate(targetDate.getDate() + 1);
+    else if(duration === "1week") targetDate.setDate(targetDate.getDate() + 7);
+    else if(duration === "2weeks") targetDate.setDate(targetDate.getDate() + 14);
+    else if(duration === "1month") targetDate.setMonth(targetDate.getMonth() + 1);
+    else if(duration === "2months") targetDate.setMonth(targetDate.getMonth() + 2);
+    else if(duration === "custom") {
+        const customVal = $("customLockDateInput").value;
+        if(!customVal) {
+            toast("Veuillez choisir une date personnalisée.");
+            return;
+        }
+        targetDate = new Date(customVal);
+    }
+
+    calculatedUnlockDate = targetDate.toISOString();
+    $("confirmLockAmount").textContent = money(S.user.vault || 0);
+    $("confirmLockDateText").textContent = formatDate(calculatedUnlockDate);
+
+    closeLockModal();
+    $("confirmLockModal").classList.remove("hidden");
+};
+
+window.closeConfirmLockModal = function() {
+    $("confirmLockModal").classList.add("hidden");
+};
+
+window.confirmAndLockVault = async function() {
+    const user = S.user;
+    if(!user) return;
+
+    try {
+        await update(ref(db, "users/" + user.id), {
+            vaultLockUntil: calculatedUnlockDate
+        });
+        toast("Coffre verrouillé avec succès !");
+        closeConfirmLockModal();
+        updateUI();
+    } catch(e) {
+        toast("Erreur lors du verrouillage : " + msg(e));
+    }
+};
+
+window.saveLinkedAccount = async function() {
+    const user = S.user;
+    if(!user) return;
+
+    const name = $("linkedName").value.trim();
+    const phone = $("linkedPhone").value.trim();
+
+    if(!selectedLinkMethod || !name || !phone) {
+        toast("Veuillez remplir tous les champs et choisir une méthode.");
+        return;
+    }
+
+    try {
+        await update(ref(db, "users/" + user.id), {
+            linkedAccount: {
+                method: selectedLinkMethod,
+                name: name,
+                phone: phone,
+                status: "Vérifié"
+            }
+        });
+        toast("Compte lié avec succès !");
+        openPage("cardPage");
+    } catch(e) {
+        toast("Erreur : " + msg(e));
+    }
+};
+
+window.submitWithdrawal = async function() {
+    const user = S.user;
+    if(!user) return;
+
+    const method = $("withdrawMethod").value;
+    const phone = $("withdrawPhone").value.trim();
+    const amount = Number($("withdrawAmount").value);
+
+    if(!phone || !amount || amount <= 0) {
+        toast("Veuillez remplir correctement les informations de retrait.");
+        return;
+    }
+
+    if(amount > Number(user.balance || 0)) {
+        toast("Montant supérieur à votre solde disponible.");
+        return;
+    }
+
+    try {
+        // Déduire immédiatement du solde disponible
+        await runTransaction(ref(db, "users/" + user.id + "/balance"), b => (b || 0) - amount);
+
+        const txId = rid("WDR");
+        await set(ref(db, "transactions/" + txId), {
+            id: txId,
+            type: "Retrait",
+            userId: user.id,
+            userName: user.name,
+            userPhone: user.phone,
+            method: method,
+            amount: amount,
+            phone: phone,
+            status: "En attente",
+            date: now()
+        });
+
+        toast("Demande de retrait enregistrée.");
+        $("withdrawAmount").value = "";
+        openPage("withdrawHistoryPage");
+    } catch(e) {
+        toast("Erreur : " + msg(e));
+    }
+};
+
 function showLogin(){
 
 offs.forEach(f=>f());
@@ -2532,7 +2846,6 @@ onAuthStateChanged(auth, u => {
 if(busy) return;
 
 if(u){
-// Si l'utilisateur est déjà connecté, on s'assure de masquer le loader et l'auth immédiatement
 const loader = $("appLoading");
 if(loader) loader.style.display="none";
 
@@ -2540,11 +2853,9 @@ if(S.user && S.user.id === u.uid){
 return;
 }
 boot(u).catch(e => {
-// En cas d'erreur de chargement de la base, on ne renvoie pas forcément vers auth si un cookie/token existe
 console.error(e);
 });
 }else{
-// Aucun utilisateur connecté : on affiche l'authentification
 showLogin();
 }
 });
@@ -2833,20 +3144,7 @@ date:now()
 }
 );
 
-$("customerPaymentPhone").value="";
-$("transactionId").value="";
-$("rechargeAmount").value="";
-
-selectedMethod="";
-selectedRechargeAmount=0;
-
-document.querySelectorAll(
-"#rechargePage .payment-method"
-)
-.forEach(el=>el.classList.remove("selected"));
-
-toast("Recharge enregistrée : En attente.");
-
+toast("Demande de recharge soumise. En attente de validation.");
 openPage("rechargeHistoryPage");
 
 }catch(e){
@@ -2857,331 +3155,6 @@ toast(msg(e));
 
 };
 
-window.submitWithdrawal=async()=>{
-
-const u=S.user;
-
-const method=$("withdrawMethod").value;
-const phone=$("withdrawPhone").value.trim();
-const amount=Number($("withdrawAmount").value);
-
-if(!u.linkedAccount){
-
-toast("Liez d'abord votre compte de retrait.");
-return openPage("linkAccountPage");
-
-}
-
-if(!phone||!amount)
-return toast("Veuillez remplir les champs.");
-
-if(amount<=0)
-return toast("Montant invalide.");
-
-if(amount>Number(u.balance||0))
-return toast("Solde insuffisant.");
-
-const id=rid("WD");
-
-try{
-
-await update(
-ref(db),
-{
-["users/"+u.id+"/balance"]:
-Number(u.balance)-amount,
-
-["transactions/"+id]:
-{
-id,
-type:"Retrait",
-userId:u.id,
-userName:u.name,
-userPhone:u.phone,
-method,
-phone,
-amount,
-status:"En attente",
-date:now()
-}
-}
-);
-
-$("withdrawPhone").value="";
-$("withdrawAmount").value="";
-
-toast("Demande de retrait enregistrée.");
-
-openPage("withdrawHistoryPage");
-
-}catch(e){
-
-toast(msg(e));
-
-}
-
-};
-
-window.vaultAction = async (actionType) => {
-const u = S.user;
-const amount = Number($("vaultInputAmount").value);
-
-if (!amount || amount <= 0) {
-return toast("Veuillez saisir un montant valide.");
-}
-
-const currentBalance = Number(u.balance || 0);
-const currentVault = Number(u.vault || 0);
-const nowTime = new Date().getTime();
-
-if (actionType === 'keep') {
-if (amount > currentBalance) {
-return toast("Solde disponible insuffisant pour mettre de côté.");
-}
-
-try {
-const txId = rid("VT");
-await update(ref(db), {
-["users/" + u.id + "/balance"]: currentBalance - amount,
-["users/" + u.id + "/vault"]: currentVault + amount,
-["vaultTransactions/" + u.id + "/" + txId]: {
-id: txId,
-type: "Garder (Coffre)",
-amount: amount,
-date: now()
-}
-});
-
-$("vaultInputAmount").value = "";
-toast(`Vous avez mis ${money(amount)} dans votre coffre.`);
-updateUI();
-renderVaultHistory();
-} catch (e) {
-toast(msg(e));
-}
-} else if (actionType === 'withdraw') {
-if (u.vaultLockUntil && new Date(u.vaultLockUntil).getTime() > nowTime) {
-return toast("Votre coffre est actuellement verrouillé.");
-}
-
-if (amount > currentVault) {
-return toast("Montant demandé supérieur au contenu de votre coffre.");
-}
-
-try {
-const txId = rid("VT");
-await update(ref(db), {
-["users/" + u.id + "/vault"]: currentVault - amount,
-["users/" + u.id + "/balance"]: currentBalance + amount,
-["vaultTransactions/" + u.id + "/" + txId]: {
-id: txId,
-type: "Récupérer (Coffre)",
-amount: amount,
-date: now()
-}
-});
-
-$("vaultInputAmount").value = "";
-toast(`Vous avez récupéré ${money(amount)} de votre coffre.`);
-updateUI();
-renderVaultHistory();
-} catch (e) {
-toast(msg(e));
-}
-}
-};
-
-window.toggleCustomDateInput = () => {
-const val = $("lockDurationSelect").value;
-$("customDateField").classList.toggle("hidden", val !== "custom");
-};
-
-window.openLockModal = () => {
-$("lockModal").classList.remove("hidden");
-};
-
-window.closeLockModal = () => {
-$("lockModal").classList.add("hidden");
-};
-
-window.submitLockVault = () => {
-const selection = $("lockDurationSelect").value;
-const d = new Date();
-
-if (selection === "tomorrow") {
-d.setDate(d.getDate() + 1);
-} else if (selection === "1week") {
-d.setDate(d.getDate() + 7);
-} else if (selection === "2weeks") {
-d.setDate(d.getDate() + 14);
-} else if (selection === "1month") {
-d.setMonth(d.getMonth() + 1);
-} else if (selection === "2months") {
-d.setMonth(d.getMonth() + 2);
-} else if (selection === "custom") {
-const customVal = $("customLockDateInput").value;
-if (!customVal) return toast("Veuillez sélectionner une date et une heure.");
-d.setTime(new Date(customVal).getTime());
-}
-
-calculatedUnlockDate = d.toISOString();
-
-$("confirmLockAmount").textContent = money(S.user.vault || 0);
-$("confirmLockDateText").textContent = formatDate(calculatedUnlockDate);
-
-closeLockModal();
-$("confirmLockModal").classList.remove("hidden");
-};
-
-window.closeConfirmLockModal = () => {
-$("confirmLockModal").classList.add("hidden");
-};
-
-window.confirmAndLockVault = async () => {
-const u = S.user;
-try {
-await update(ref(db), {
-["users/" + u.id + "/vaultLockUntil"]: calculatedUnlockDate
-});
-
-closeConfirmLockModal();
-toast(`Coffre bloqué avec succès jusqu'au ${formatDate(calculatedUnlockDate)}.`);
-updateUI();
-} catch (e) {
-toast(msg(e));
-}
-};
-
-function renderVaultHistory() {
-const list = $("vaultHistoryList");
-if(!list) return;
-const items = S.vaultTxs || [];
-
-if(!items.length) {
-list.innerHTML = `<div class="empty"><div style="font-size:30px">🔒</div><p style="margin-top:8px">Aucune opération dans le coffre.</p></div>`;
-return;
-}
-
-list.innerHTML = items.map(i => `
-<div class="history-item">
-<div class="history-top">
-<strong>${i.type.includes("Garder") ? "+" : "-"}${money(i.amount)}</strong>
-<span class="status validée">${i.type}</span>
-</div>
-<div class="history-details">
-Référence : ${i.id}<br>
-Date : ${formatDate(i.date)}
-</div>
-</div>
-`).join("");
-}
-
-window.investPlan=async id=>{
-
-const u=S.user;
-
-const plan=plans.find(p=>p.id===id);
-
-if(!u||!plan)return;
-
-if(Number(u.balance||0)<plan.amount){
-
-toast("Solde insuffisant. Veuillez recharger.");
-
-return openPage("rechargePage");
-
-}
-
-const pid=rid("INV");
-
-try{
-
-await update(
-ref(db),
-{
-["users/"+u.id+"/balance"]:
-Number(u.balance)-plan.amount,
-
-["purchases/"+u.id+"/"+pid]:
-{
-id:pid,
-userId:u.id,
-planId:plan.id,
-planName:plan.name,
-amount:plan.amount,
-daily:plan.daily,
-days:plan.days,
-date:now(),
-status:"Investissement enregistré"
-}
-}
-);
-
-toast("Investissement enregistré.");
-
-setTimeout(
-()=>openPage("purchasesPage"),
-400
-);
-
-}catch(e){
-
-toast(msg(e));
-
-}
-
-};
-
-window.saveLinkedAccount=async()=>{
-
-const name=$("linkedName").value.trim();
-const phone=$("linkedPhone").value.trim();
-
-if(!selectedLinkMethod)
-return toast("Choisissez une méthode.");
-
-if(!name||!phone)
-return toast("Entrez votre nom et votre numéro.");
-
-try{
-
-await set(
-ref(db,"users/"+S.user.id+"/linkedAccount"),
-{
-method:selectedLinkMethod,
-name,
-phone,
-status:"Compte lié",
-date:now()
-}
-);
-
-$("linkedName").value="";
-$("linkedPhone").value="";
-
-selectedLinkMethod="";
-
-document.querySelectorAll(
-"#linkAccountPage .payment-method"
-)
-.forEach(el=>el.classList.remove("selected"));
-
-toast("Votre compte a été lié.");
-
-setTimeout(
-()=>openPage("cardPage"),
-400
-);
-
-}catch(e){
-
-toast(msg(e));
-
-}
-
-};
-
 </script>
-
 </body>
 </html>
