@@ -547,12 +547,6 @@ alt="Paiement mobile">
 <small>Mettre de côté</small>
 </div>
 
-<div class="quick-card" onclick="openPage('loanPage')">
-<div class="quick-icon">💰</div>
-<strong>Obtenir un prêt</strong>
-<small>Prêt rapide 316.000 F</small>
-</div>
-
 <div class="quick-card" onclick="openPage('purchasesPage')">
 <div class="quick-icon">🛍</div>
 <strong>Mes achats</strong>
@@ -685,36 +679,6 @@ alt="Paiement mobile">
 </div>
 </div>
 </div>
-
-<section id="loanPage" class="page">
-<h2 class="section-title">Demander un prêt</h2>
-<p class="section-sub">Service de prêt rapide Coca Ultra 5G</p>
-
-<div class="payment-box">
-
-<div class="info-box warning">
-<strong>Remarque importante :</strong><br>
-Pour obtenir la validation de votre prêt rapide, veuillez contacter notre service client qui traitera immédiatement votre demande.
-</div>
-
-<div class="field" style="margin-top:15px">
-<label>Montant du prêt autorisé</label>
-<input type="text" value="316 000 FCFA" disabled style="font-weight:bold;font-size:18px;color:#d90429;background:#fff0eb;">
-</div>
-
-<div class="info-box">
-<strong>Conditions d'éligibilité :</strong>
-<ul style="margin-left:18px;margin-top:5px;">
-<li>Avoir un compte actif</li>
-<li>Validation immédiate via le service client</li>
-</ul>
-</div>
-
-<button class="btn red" onclick="requestLoanProcess()">OBTENIR LE PRÊT (316.000 F)</button>
-<button class="btn light" onclick="openPage('homePage')" style="margin-top:10px">RETOUR À L'ACCUEIL</button>
-
-</div>
-</section>
 
 <section id="adminPage" class="page">
 
@@ -1470,13 +1434,6 @@ if(pageId==="adminPage")
 renderAdminDashboard();
 
 window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function requestLoanProcess(){
-toast("Redirection vers le service client...");
-setTimeout(()=>{
-openPage("supportPage");
-},500);
 }
 
 function formatStatusBadge(status){
