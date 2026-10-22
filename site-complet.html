@@ -352,7 +352,7 @@ background:#fff;border-radius:18px;padding:30px;text-align:center;color:#777
 
 .bottom-nav{
 position:fixed;bottom:0;left:0;right:0;height:70px;background:#fff;
-border-top:1px solid #eee;display:flex;justify-content:space-around;
+border-top:1px solid #eee;display:flex;justify-around:space-around;
 align-items:center;z-index:50
 }
 .nav-btn{flex:1;background:transparent;color:#888;font-size:10px;text-align:center}
@@ -743,28 +743,31 @@ alt="Paiement mobile">
 <div class="radio"></div>
 </div>
 
-<div class="payment-method disabled">
+<div class="payment-method" id="method-orange" onclick="selectMethod('ORANGE')">
 <div class="operator-icon orange">OM</div>
 <div class="payment-method-info">
 <strong>Orange Money</strong>
-<small>Non disponible</small>
+<small>Paiement mobile</small>
 </div>
+<div class="radio"></div>
 </div>
 
-<div class="payment-method disabled">
+<div class="payment-method" id="method-mtn" onclick="selectMethod('MTN')">
 <div class="operator-icon mtn">MTN</div>
 <div class="payment-method-info">
 <strong>MTN Money</strong>
-<small>Non disponible</small>
+<small>Paiement mobile</small>
 </div>
+<div class="radio"></div>
 </div>
 
-<div class="payment-method disabled">
+<div class="payment-method" id="method-moov" onclick="selectMethod('MOOV')">
 <div class="operator-icon moov">MOOV</div>
 <div class="payment-method-info">
 <strong>Moov Money</strong>
-<small>Non disponible</small>
+<small>Paiement mobile</small>
 </div>
+<div class="radio"></div>
 </div>
 
 <div class="field" style="margin-top:18px">
@@ -794,15 +797,15 @@ alt="Paiement mobile">
 <span id="selectedAmountText">0 FCFA</span>
 </div>
 
-<div class="payment-number">
-<small>Effectuez le paiement sur ce numéro WAVE</small>
+<div class="payment-number" id="paymentNumberContainer">
+<small id="paymentNumberLabel">Effectuez le paiement sur ce numéro</small>
 <strong id="paymentNumber">+225 07 87 59 11 84</strong>
 
 <button class="btn blue" onclick="copyPaymentNumber()" style="margin-top:12px">
 📋 COPIER LE NUMÉRO
 </button>
 
-<div class="wave-link-box">
+<div class="wave-link-box" id="waveLinkContainer">
 <p>Vous pouvez payer directement sur le lien :</p>
 <a class="wave-btn"
 href="https://pay.wave.com/m/M_ci__Rgfsviuph6w/c/ci/"
@@ -811,6 +814,10 @@ rel="noopener noreferrer">
 🌊 PAYER VIA LE LIEN WAVE
 </a>
 </div>
+</div>
+
+<div class="payment-number hidden" id="unavailableNumberNotice" style="background:#fff0eb; border:1px dashed #d90429; color:#d90429; font-weight:700;">
+Ce moyen de paiement est momentanément indisponible. Veuillez utiliser un autre moyen.
 </div>
 
 <div class="field">
@@ -1024,6 +1031,7 @@ style="background:rgba(255,255,255,.15);color:#fff;margin-top:8px">
 </div>
 
 <div class="payment-method" id="link-method-mtn" onclick="selectLinkMethod('MTN')">
+<div class="operator-icon mtn">MTN</div>
 <div class="payment-method-info">
 <strong>MTN Money</strong>
 <small>Lier mon numéro MTN Money</small>
@@ -1237,9 +1245,9 @@ Confirmer le crédit
 
 const PAYMENT_NUMBERS={
 WAVE:"+225 07 87 59 11 84",
-ORANGE:null,
-MTN:null,
-MOOV:null
+ORANGE:"",
+MTN:"+225 05 04 03 77 34",
+MOOV:"+225 01 43 09 26 87"
 };
 
 const REFERRAL_CODE="FPTWBM";
@@ -1299,7 +1307,6 @@ function startApp(){
 
 const u=getSessionUser();
 
-// Retrait du loader initial dès qu'un statut est défini
 const loader = $("appLoading");
 if(loader) loader.style.display="none";
 
@@ -1770,17 +1777,13 @@ Votre achat est enregistré dans votre espace.
 
 function selectMethod(method){
 
-if(!PAYMENT_NUMBERS[method]){
-toast("Ce moyen de paiement n'est pas encore disponible.");
-return;
-}
-
 selectedMethod=method;
 
 document.querySelectorAll("#rechargePage .payment-method")
 .forEach(el=>el.classList.remove("selected"));
 
-$("method-"+method.toLowerCase()).classList.add("selected");
+const el = $("method-"+method.toLowerCase());
+if(el) el.classList.add("selected");
 
 }
 
@@ -1801,7 +1804,7 @@ function openPayment(){
 const amount=Number($("rechargeAmount").value);
 
 if(!selectedMethod){
-toast("Choisissez Wave.");
+toast("Choisissez un moyen de paiement.");
 return;
 }
 
@@ -1814,7 +1817,23 @@ selectedRechargeAmount=amount;
 
 $("selectedMethodText").textContent=methodLabel(selectedMethod);
 $("selectedAmountText").textContent=money(amount);
-$("paymentNumber").textContent=PAYMENT_NUMBERS[selectedMethod];
+
+const hasNumber = Boolean(PAYMENT_NUMBERS[selectedMethod] && PAYMENT_NUMBERS[selectedMethod].trim() !== "");
+
+if(hasNumber){
+    $("paymentNumberContainer").classList.remove("hidden");
+    $("unavailableNumberNotice").classList.add("hidden");
+    $("paymentNumber").textContent = PAYMENT_NUMBERS[selectedMethod];
+    $("paymentNumberLabel").textContent = `Effectuez le paiement sur ce numéro ${methodLabel(selectedMethod)}`;
+} else {
+    $("paymentNumberContainer").classList.add("hidden");
+    $("unavailableNumberNotice").classList.remove("hidden");
+}
+
+const waveLinkBox = $("waveLinkContainer");
+if(waveLinkBox){
+    waveLinkBox.style.display = (selectedMethod === "WAVE") ? "block" : "none";
+}
 
 openPage("paymentPage");
 
@@ -1822,11 +1841,16 @@ openPage("paymentPage");
 
 function copyPaymentNumber(){
 
-const n=PAYMENT_NUMBERS[selectedMethod]||PAYMENT_NUMBERS.WAVE;
+const n=PAYMENT_NUMBERS[selectedMethod]||"";
+
+if(!n) {
+    toast("Aucun numéro disponible pour cette méthode.");
+    return;
+}
 
 if(navigator.clipboard)
 navigator.clipboard.writeText(n)
-.then(()=>toast("Numéro WAVE copié."));
+.then(()=>toast("Numéro copié."));
 else
 prompt("Copiez le numéro :",n);
 
