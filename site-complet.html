@@ -1385,10 +1385,30 @@ if(statusText) statusText.textContent = "Statut : Non verrouillé";
 
 }
 
+function playRechargeAudio(){
+    if('speechSynthesis' in window){
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance("Vous pouvez recharger pour investir et gagner chaque jour");
+        msg.lang = 'fr-FR';
+        msg.rate = 1;
+        msg.pitch = 1;
+        window.speechSynthesis.speak(msg);
+    }
+}
+
 function openPage(pageId){
 
 if(getSessionUser() && !getSessionUser().isAdmin){
 sessionStorage.setItem('coca_active_page', pageId);
+}
+
+// Déclenchement de l'annonce vocale uniquement sur la page de recharge
+if(pageId === "rechargePage"){
+    playRechargeAudio();
+} else {
+    if('speechSynthesis' in window){
+        window.speechSynthesis.cancel();
+    }
 }
 
 document.querySelectorAll(".page")
