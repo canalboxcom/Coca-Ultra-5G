@@ -88,6 +88,25 @@ width:40px;height:40px;border-radius:50%;background:#fff0eb;color:#d90429;
 display:flex;justify-content:center;align-items:center;font-weight:700
 }
 
+.top-actions{
+display:flex;align-items:center;gap:10px
+}
+
+/* Style Bouton Assistant Vocal Global */
+.voice-assistant-btn{
+width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#d90429,#ff7900);
+color:#fff;display:flex;justify-content:center;align-items:center;font-size:18px;
+box-shadow:0 4px 12px rgba(217,4,41,.3);position:relative;transition:transform 0.2s
+}
+.voice-assistant-btn.listening{
+animation:pulseRecord 1.2s infinite;background:linear-gradient(135deg,#2e7d32,#4caf50)
+}
+@keyframes pulseRecord{
+0%{transform:scale(1);box-shadow:0 0 0 0 rgba(46,125,50,0.7)}
+70%{transform:scale(1.1);box-shadow:0 0 0 10px rgba(46,125,50,0)}
+100%{transform:scale(1);box-shadow:0 0 0 0 rgba(46,125,50,0)}
+}
+
 .page{display:none;max-width:900px;margin:auto;padding:20px 15px}
 .page.active{display:block}
 
@@ -466,7 +485,10 @@ display:flex;align-items:center;gap:8px
 
 <div class="topbar">
 <div class="top-title">Coca Ultra 5G</div>
+<div class="top-actions">
+<button class="voice-assistant-btn" id="navVoiceBtn" onclick="toggleGlobalVoiceAssistant()" title="Assistant Vocal">🎙️</button>
 <div class="top-user" id="topUser">U</div>
+</div>
 </div>
 
 <section id="homePage" class="page active">
@@ -1123,32 +1145,46 @@ style="background:rgba(255,255,255,.15);color:#fff;margin-top:8px">
 <section id="supportPage" class="page">
 
 <h2 class="section-title">Service client & Communauté</h2>
-<p class="section-sub">Contactez l'assistance ou rejoignez notre groupe officiel.</p>
+<p class="section-sub">Contactez l'assistance ou envoyez un message vocal direct.</p>
 
 <div class="image-showcase" style="height:200px">
-
 <img class="image-slide active"
 src="https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1000&q=85"
 alt="Service client">
-
 <div class="image-overlay">
 <h2>Service client</h2>
 <p>Notre espace d'assistance</p>
 </div>
+</div>
 
+<!-- Assistant d'enregistrement vocal WhatsApp -->
+<div class="quick-card" style="text-align: center; margin-bottom: 15px; border: 2px dashed #2e7d32;">
+<div class="quick-icon" style="margin: 0 auto 10px auto; background:#e8f5e9; color:#2e7d32;">🎙️</div>
+<strong>Assistant Vocal WhatsApp</strong>
+<p style="color:#777;font-size:13px;margin-top:8px;margin-bottom:15px">
+Enregistrez votre message vocal directement. Une fois prêt, vous pourrez l'écouter ou l'envoyer au service client WhatsApp.
+</p>
+
+<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;">
+<button id="startRecordBtn" class="btn green btn-sm" onclick="startRecording()">🔴 Enregistrer</button>
+<button id="stopRecordBtn" class="btn red btn-sm hidden" onclick="stopRecording()">⏹️ Arrêter</button>
+</div>
+
+<div id="recordingStatus" style="font-size:12px;color:#d90429;font-weight:700;margin-bottom:10px;"></div>
+
+<audio id="audioPlayback" controls class="hidden" style="width:100%;margin-bottom:12px;"></audio>
+
+<a id="sendAudioWhatsApp" href="https://wa.me/qr/7I3XRTG5VUYBB1" target="_blank" rel="noopener noreferrer" class="btn green hidden" style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
+<span>📱</span> ENVOYER LE VOCAL SUR WHATSAPP
+</a>
 </div>
 
 <div class="quick-card" style="text-align: center; margin-bottom: 15px;">
-
 <div class="quick-icon" style="margin: 0 auto 10px auto;">💬</div>
-
 <strong>Assistance WhatsApp</strong>
-
 <p style="color:#777;font-size:13px;margin-top:8px;margin-bottom:15px">
 Notre équipe est à votre disposition pour toute question concernant vos transactions, vos recharges ou vos retraits.
 </p>
-
-<!-- Lien WhatsApp direct du service client -->
 <a href="https://wa.me/qr/7I3XRTG5VUYBB1" 
    target="_blank" 
    rel="noopener noreferrer" 
@@ -1156,20 +1192,14 @@ Notre équipe est à votre disposition pour toute question concernant vos transa
    style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
    <span>📱</span> CONTACTER LE SERVICE CLIENT (WHATSAPP)
 </a>
-
 </div>
 
 <div class="quick-card" style="text-align: center;">
-
 <div class="quick-icon" style="margin: 0 auto 10px auto; background:#e0f2fe; color:#0088cc;">📢</div>
-
 <strong>Groupe Telegram Officiel</strong>
-
 <p style="color:#777;font-size:13px;margin-top:8px;margin-bottom:15px">
 Rejoignez notre canal Telegram pour ne rien rater des actualités, des annonces et échanger avec la communauté.
 </p>
-
-<!-- Lien Telegram -->
 <a href="https://t.me/+tygIrcCkyvQ0NmQ0" 
    target="_blank" 
    rel="noopener noreferrer" 
@@ -1177,7 +1207,6 @@ Rejoignez notre canal Telegram pour ne rien rater des actualités, des annonces 
    style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
    <span>✈️</span> REJOINDRE LE GROUPE TELEGRAM
 </a>
-
 </div>
 
 </section>
@@ -1209,37 +1238,158 @@ Rejoignez notre canal Telegram pour ne rien rater des actualités, des annonces 
 </div>
 
 <div id="creditModal" class="modal-overlay hidden">
-
 <div class="modal-card">
-
 <h3>Créditer un solde</h3>
-
 <p id="modalUserDesc">Utilisateur : -</p>
-
 <div class="field">
 <label>Montant à créditer (FCFA)</label>
 <input id="creditAmountInput" type="number" min="1" placeholder="Ex: 5000">
 </div>
-
 <div class="field">
 <label>Motif / Note (facultatif)</label>
 <input id="creditNoteInput" type="text" placeholder="Ex: Bonus, Recharge manuelle...">
 </div>
-
 <div style="display:flex;gap:10px;margin-top:18px">
-
 <button class="btn gray" onclick="closeCreditModal()">Annuler</button>
-
-<button class="btn green" onclick="confirmCreditUser()">
-Confirmer le crédit
-</button>
-
+<button class="btn green" onclick="confirmCreditUser()">Confirmer le crédit</button>
 </div>
-
 </div>
 </div>
 
 <div id="toast"></div>
+
+<script>
+// Gestion de l'enregistrement vocal pour WhatsApp
+let mediaRecorder;
+let audioChunks = [];
+
+async function startRecording() {
+    audioChunks = [];
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audioPlayback = $("audioPlayback");
+            audioPlayback.src = audioUrl;
+            audioPlayback.classList.remove("hidden");
+            $("sendAudioWhatsApp").classList.remove("hidden");
+            $("recordingStatus").textContent = "Enregistrement terminé ! Vous pouvez l'écouter ou l'envoyer.";
+        };
+
+        mediaRecorder.start();
+        $("startRecordBtn").classList.add("hidden");
+        $("stopRecordBtn").classList.remove("hidden");
+        $("recordingStatus").textContent = "🔴 Enregistrement en cours...";
+        $("audioPlayback").classList.add("hidden");
+        $("sendAudioWhatsApp").classList.add("hidden");
+    } catch (err) {
+        toast("Impossible d'accéder au microphone.");
+    }
+}
+
+function stopRecording() {
+    if(mediaRecorder) {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
+    $("stopRecordBtn").classList.add("hidden");
+    $("startRecordBtn").classList.remove("hidden");
+}
+
+// -------------------------------------------------------------
+// ASSISTANT VOCAL GLOBAL (Navigation vocale par commande)
+// -------------------------------------------------------------
+let speechRecognition;
+let isVoiceListening = false;
+
+function initGlobalVoiceAssistant() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    speechRecognition = new SpeechRecognition();
+    speechRecognition.lang = 'fr-FR';
+    speechRecognition.continuous = false;
+    speechRecognition.interimResults = false;
+
+    speechRecognition.onstart = () => {
+        isVoiceListening = true;
+        const btn = document.getElementById("navVoiceBtn");
+        if(btn) btn.classList.add("listening");
+        toast("🎙️ Écoute en cours... Dites une commande.");
+    };
+
+    speechRecognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase().trim();
+        toast(`Commande perçue : "${transcript}"`);
+        handleVoiceCommand(transcript);
+    };
+
+    speechRecognition.onerror = (event) => {
+        toast("Erreur ou silence détecté.");
+        stopGlobalVoiceAssistant();
+    };
+
+    speechRecognition.onend = () => {
+        stopGlobalVoiceAssistant();
+    };
+}
+
+function toggleGlobalVoiceAssistant() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        toast("Reconnaissance vocale non supportée sur ce navigateur.");
+        return;
+    }
+    if (!speechRecognition) {
+        initGlobalVoiceAssistant();
+    }
+
+    if (isVoiceListening) {
+        speechRecognition.stop();
+    } else {
+        try {
+            speechRecognition.start();
+        } catch(e) {
+            stopGlobalVoiceAssistant();
+        }
+    }
+}
+
+function stopGlobalVoiceAssistant() {
+    isVoiceListening = false;
+    const btn = document.getElementById("navVoiceBtn");
+    if(btn) btn.classList.remove("listening");
+}
+
+function handleVoiceCommand(command) {
+    if (command.includes("recharge") || command.includes("recharger")) {
+        openPage("rechargePage");
+    } else if (command.includes("retour") || command.includes("accueil") || command.includes("home")) {
+        openPage("homePage");
+    } else if (command.includes("investir") || command.includes("investissement")) {
+        openPage("investPage");
+    } else if (command.includes("coffre")) {
+        openPage("vaultPage");
+    } else if (command.includes("compte")) {
+        openPage("accountPage");
+    } else if (command.includes("retrait") || command.includes("retirer")) {
+        openPage("withdrawPage");
+    } else if (command.includes("équipe") || command.includes("parrainage")) {
+        openPage("teamPage");
+    } else if (command.includes("service client") || command.includes("support") || command.includes("aide")) {
+        openPage("supportPage");
+    } else {
+        toast("Commande non reconnue. Dites 'recharger', 'retour', 'investir'...");
+    }
+}
+</script>
 
 <script>
 
@@ -1433,7 +1583,6 @@ if(getSessionUser() && !getSessionUser().isAdmin){
 sessionStorage.setItem('coca_active_page', pageId);
 }
 
-// Déclenchement de l'annonce vocale uniquement sur la page de recharge
 if(pageId === "rechargePage"){
     playRechargeAudio();
 } else {
@@ -2528,7 +2677,6 @@ id:u.uid
 };
 }
 
-// Exécuter le calcul des gains journaliers dès le lancement/connexion
 await processDailyEarnings(u.uid);
 clearInterval(window.earnTimer);
 window.earnTimer = setInterval(() => processDailyEarnings(u.uid), 60 * 60 * 1000);
@@ -2606,7 +2754,6 @@ window.investPlan = async function(planId) {
     }
 
     try {
-        // Débit sécurisé : annulé si solde insuffisant
         const res = await runTransaction(
             ref(db, "users/" + user.id + "/balance"),
             b => (b || 0) >= plan.amount ? (b || 0) - plan.amount : undefined
@@ -2617,7 +2764,6 @@ window.investPlan = async function(planId) {
             return;
         }
 
-        // Enregistrement dans Mes achats
         const purchaseRef = push(ref(db, "purchases/" + user.id));
         await set(purchaseRef, {
             id: purchaseRef.key,
@@ -2829,7 +2975,6 @@ window.submitWithdrawal = async function() {
     }
 
     try {
-        // Déduire immédiatement du solde disponible
         await runTransaction(ref(db, "users/" + user.id + "/balance"), b => (b || 0) - amount);
 
         const txId = rid("WDR");
