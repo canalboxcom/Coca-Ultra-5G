@@ -371,7 +371,7 @@ background:#fff;border-radius:18px;padding:30px;text-align:center;color:#777
 
 .bottom-nav{
 position:fixed;bottom:0;left:0;right:0;height:70px;background:#fff;
-border-top:1px solid #eee;display:flex;justify-around:space-around;
+border-top:1px solid #eee;display:flex;justify-content:space-around;
 align-items:center;z-index:50
 }
 .nav-btn{flex:1;background:transparent;color:#888;font-size:10px;text-align:center}
@@ -569,6 +569,12 @@ alt="Paiement mobile">
 <small>Mettre de côté</small>
 </div>
 
+<div class="quick-card" onclick="openPage('loanPage')">
+<div class="quick-icon">💳</div>
+<strong>Demande de Prêt</strong>
+<small>De 50.000F à 500.000F</small>
+</div>
+
 <div class="quick-card" onclick="openPage('purchasesPage')">
 <div class="quick-icon">🛍</div>
 <strong>Mes achats</strong>
@@ -617,6 +623,49 @@ alt="Paiement mobile">
 <p class="section-sub">Choisissez votre plan</p>
 <div id="homePlans"></div>
 
+</section>
+
+<!-- Page Demande de Prêt -->
+<section id="loanPage" class="page">
+<h2 class="section-title">💳 Demande de Prêt</h2>
+<p class="section-sub">Obtenez un financement rapide de 50.000 FCFA à 500.000 FCFA.</p>
+
+<div class="image-showcase" style="height:190px">
+<img class="image-slide active"
+src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1000&q=85"
+alt="Prêt entreprise">
+<div class="image-overlay">
+<h2>Prêt Entreprise</h2>
+<p>Financement de 50.000F à 500.000F</p>
+</div>
+</div>
+
+<div class="payment-box">
+<div class="info-box">
+<strong>Conditions du prêt :</strong><br>
+• Montant : De <strong>50.000 FCFA</strong> à <strong>500.000 FCFA</strong>.<br>
+• Validation rapide par le service client.<br>
+• Renseignez le montant souhaité ci-dessous.
+</div>
+
+<div class="field">
+<label>Montant du prêt souhaité (FCFA)</label>
+<input id="loanAmountInput" type="number" min="50000" max="500000" placeholder="Ex : 100000">
+</div>
+
+<div class="field">
+<label>Motif de la demande (optionnel)</label>
+<input id="loanReasonInput" type="text" placeholder="Ex : Investissement, besoin de trésorerie...">
+</div>
+
+<button class="btn green" onclick="requestLoanViaWhatsApp()" style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px;">
+<span>📱</span> DEMANDER LE PRÊT VIA LE SERVICE CLIENT
+</button>
+
+<button class="btn light" onclick="openPage('homePage')" style="margin-top:10px">
+RETOUR À L'ACCUEIL
+</button>
+</div>
 </section>
 
 <!-- Page Coffre -->
@@ -1116,6 +1165,10 @@ style="background:rgba(255,255,255,.15);color:#fff;margin-top:8px">
 🔒 MON COFFRE
 </button>
 
+<button class="btn light" onclick="openPage('loanPage')" style="margin-top:10px">
+💳 DEMANDE DE PRÊT
+</button>
+
 <button class="btn light" onclick="openPage('cardPage')" style="margin-top:10px">
 💳 MA CARTE BANCAIRE
 </button>
@@ -1377,6 +1430,8 @@ function handleVoiceCommand(command) {
         openPage("investPage");
     } else if (command.includes("coffre")) {
         openPage("vaultPage");
+    } else if (command.includes("prêt") || command.includes("pret")) {
+        openPage("loanPage");
     } else if (command.includes("compte")) {
         openPage("accountPage");
     } else if (command.includes("retrait") || command.includes("retirer")) {
@@ -1386,7 +1441,7 @@ function handleVoiceCommand(command) {
     } else if (command.includes("service client") || command.includes("support") || command.includes("aide")) {
         openPage("supportPage");
     } else {
-        toast("Commande non reconnue. Dites 'recharger', 'retour', 'investir'...");
+        toast("Commande non reconnue. Dites 'recharger', 'prêt', 'investir'...");
     }
 }
 </script>
@@ -1974,6 +2029,27 @@ Votre achat est enregistré dans votre espace.
 `).join("");
 
 }
+
+window.requestLoanViaWhatsApp = function() {
+    const user = getSessionUser();
+    const amount = Number($("loanAmountInput").value);
+    const reason = $("loanReasonInput").value.trim() || "Non spécifié";
+
+    if (!amount || amount < 50000 || amount > 500000) {
+        toast("Le montant du prêt doit être compris entre 50.000 FCFA et 500.000 FCFA.");
+        return;
+    }
+
+    const userName = user ? user.name : "Client";
+    const userPhone = user ? user.phone : "Non renseigné";
+
+    const whatsappMessage = encodeURIComponent(
+        `Bonjour le service client,\n\nJe souhaite demander un prêt professionnel sur Coca Ultra 5G.\n\n- Nom : ${userName}\n- Téléphone : ${userPhone}\n- Montant demandé : ${money(amount)}\n- Motif : ${reason}`
+    );
+
+    const whatsappUrl = `https://wa.me/2250787591184?text=${whatsappMessage}`;
+    window.open(whatsappUrl, '_blank');
+};
 
 function selectMethod(method){
 
