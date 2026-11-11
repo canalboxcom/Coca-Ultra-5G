@@ -3046,7 +3046,7 @@ window.submitWithdrawal = async function() {
     }
 
     if(amount > Number(user.balance || 0)) {
-        toast("Montant supérieur à votre solde disponible.");
+        toast("Montant supérieur au solde disponible.");
         return;
     }
 
