@@ -620,7 +620,7 @@ alt="Paiement mobile">
 </div>
 
 <h2 class="section-title">Investissements</h2>
-<p class="section-sub">Choisissez votre plan</p>
+<p class="section-sub">Choisissez votre plan sur 10 jours</p>
 <div id="homePlans"></div>
 
 </section>
@@ -789,7 +789,7 @@ RETOUR À L'ACCUEIL
 
 <section id="investPage" class="page">
 <h2 class="section-title">Investir</h2>
-<p class="section-sub">Sélectionnez un plan.</p>
+<p class="section-sub">Sélectionnez un plan sur 10 jours.</p>
 <div id="investPlans"></div>
 <button class="btn light" onclick="openPage('purchasesPage')">🛍️ VOIR MES ACHATS</button>
 </section>
@@ -1466,11 +1466,11 @@ let targetCreditUserId=null;
 let calculatedUnlockDate=null;
 
 const plans=[
-{id:"VIP1",name:"VIP 1",amount:5000,daily:1300,days:31},
-{id:"VIP2",name:"VIP 2",amount:10000,daily:2500,days:31},
-{id:"VIP3",name:"VIP 3",amount:20000,daily:3500,days:31},
-{id:"VIP5",name:"VIP 5",amount:50000,daily:5000,days:31},
-{id:"VIP6",name:"VIP 6",amount:100000,daily:10000,days:31}
+{id:"VIP1",name:"VIP 1",amount:5000,daily:2000,days:10,total:20000},
+{id:"VIP2",name:"VIP 2",amount:10000,daily:4000,days:10,total:40000},
+{id:"VIP3",name:"VIP 3",amount:20000,daily:6000,days:10,total:60000},
+{id:"VIP4",name:"VIP 4",amount:50000,daily:8000,days:10,total:80000},
+{id:"VIP5",name:"VIP 5",amount:100000,daily:14000,days:10,total:140000}
 ];
 
 const $=id=>document.getElementById(id);
@@ -1902,7 +1902,7 @@ const html=plans.map(p=>`
 
 <div class="plan-name">${p.name}</div>
 
-<div class="vip">PLAN</div>
+<div class="vip">PLAN 10 JOURS</div>
 
 </div>
 
@@ -1919,6 +1919,11 @@ const html=plans.map(p=>`
 <div class="plan-row">
 <span>Durée</span>
 <strong>${p.days} jours</strong>
+</div>
+
+<div class="plan-row">
+<span>Total cumulé</span>
+<strong>${money(p.total ?? p.daily * p.days)}</strong>
 </div>
 
 <button class="btn red" onclick="investPlan('${p.id}')">
@@ -2850,6 +2855,7 @@ window.investPlan = async function(planId) {
             daily: plan.daily,
             days: plan.days,
             daysRemaining: plan.days,
+            total: plan.total ?? (plan.daily * plan.days),
             status: "Actif",
             date: now(),
             lastCreditedDate: now()
