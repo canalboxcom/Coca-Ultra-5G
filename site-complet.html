@@ -110,6 +110,187 @@ animation:pulseRecord 1.2s infinite;background:linear-gradient(135deg,#2e7d32,#4
 .page{display:none;max-width:900px;margin:auto;padding:20px 15px}
 .page.active{display:block}
 
+/* ============================================================
+   STYLES AVIATOR STYLE ARCADE / CRASH
+   ============================================================ */
+#aviatorPage.page.active{
+background:#0b0c10;color:#fff;border-radius:20px;padding:12px;
+box-shadow:0 14px 36px rgba(0,0,0,.35)
+}
+.av-topbar{
+display:flex;align-items:center;justify-content:space-between;
+background:#ffffff;color:#111;padding:10px 14px;border-radius:14px;margin-bottom:10px
+}
+.av-back-btn{
+background:#f1f3f5;color:#111;width:36px;height:36px;border-radius:10px;
+font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center
+}
+.av-wallet-pill{
+display:flex;align-items:center;background:#1f242d;color:#fff;
+border-radius:18px;overflow:hidden;border:2px solid #38b000
+}
+.av-wallet-amt{
+padding:6px 14px;font-size:13px;font-weight:800;letter-spacing:.3px
+}
+.av-wallet-plus{
+background:#38b000;color:#fff;width:30px;height:30px;
+display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800
+}
+.av-bonus-badge{
+width:34px;height:34px;border-radius:50%;border:2px dashed #1976d2;
+color:#1976d2;font-size:9px;font-weight:800;display:flex;
+align-items:center;justify-content:center;background:#eef6ff
+}
+
+.av-history-strip{
+display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px;
+scrollbar-width:none
+}
+.av-history-strip::-webkit-scrollbar{display:none}
+.av-hist-chip{
+padding:5px 10px;border-radius:8px;font-size:12px;font-weight:800;
+background:#1a1e29;color:#4cc9f0;border:1px solid #2b3245;white-space:nowrap
+}
+.av-hist-chip.crash-low{
+color:#ff595e;border-color:#592228;background:#241418
+}
+.av-hist-chip.crash-high{
+color:#80ed99;border-color:#224d32;background:#122419
+}
+
+.av-sky{
+position:relative;height:255px;border-radius:14px;overflow:hidden;
+background:radial-gradient(circle at 75% 22%,rgba(90,60,160,.28),transparent 42%),
+linear-gradient(180deg,#070912 0%,#0f1324 70%,#161b33 100%);
+border:1px solid #252b42;margin-bottom:10px
+}
+.av-stars{
+position:absolute;inset:0;
+background-image:radial-gradient(#fff 1px,transparent 1px),radial-gradient(#ffd400 1px,transparent 1px);
+background-size:48px 48px,85px 85px;background-position:0 0,24px 36px;opacity:.35
+}
+.av-scale{
+position:absolute;left:10px;top:14px;bottom:24px;
+display:flex;flex-direction:column;justify-content:space-between;
+font-size:11px;font-weight:800;color:#7e8aa6;z-index:2
+}
+.av-scale span::before{
+content:"";display:inline-block;width:7px;height:2px;background:#4c5670;
+margin-right:4px;vertical-align:middle
+}
+.av-side-tools{
+position:absolute;right:10px;top:14px;display:flex;flex-direction:column;gap:8px;z-index:4
+}
+.av-tool-btn{
+width:30px;height:30px;border-radius:7px;background:#d97706;color:#fff;
+font-size:13px;font-weight:800;box-shadow:0 3px 0 #92400e;
+display:flex;align-items:center;justify-content:center
+}
+.av-center-hud{
+position:relative;z-index:3;height:100%;display:flex;flex-direction:column;
+align-items:center;justify-content:center;pointer-events:none;padding:0 44px
+}
+.av-countdown{
+font-size:62px;font-weight:900;color:#38bdf8;
+text-shadow:0 0 24px rgba(56,189,248,.55);line-height:1
+}
+.av-multiplier{
+font-size:50px;font-weight:900;color:#ffd400;
+text-shadow:0 4px 20px rgba(0,0,0,.7);line-height:1.05
+}
+.av-multiplier.crashed{color:#ff4d6d}
+.av-state-label{
+margin-top:8px;font-size:12px;font-weight:800;letter-spacing:.5px;
+color:#e2e8f0;background:rgba(15,23,42,.75);padding:4px 10px;border-radius:999px
+}
+.av-launch-pad{
+position:absolute;left:14px;bottom:-8px;width:92px;height:52px;
+background:radial-gradient(circle at 50% 35%,#94a3b8,#475569);
+border-radius:50% 50% 0 0;z-index:2
+}
+.av-rocket{
+position:absolute;left:36px;bottom:14px;font-size:36px;z-index:3;
+transform:rotate(-20deg);transition:transform 0.07s linear;
+filter:drop-shadow(0 0 12px rgba(255,159,28,.65))
+}
+.av-promo-burst{
+position:absolute;right:48px;bottom:22px;background:#e11d48;color:#fff;
+font-weight:900;font-size:16px;padding:7px 14px;
+clip-path:polygon(12% 0%,28% 18%,50% 0%,72% 18%,88% 0%,84% 35%,100% 50%,82% 66%,90% 100%,65% 84%,48% 100%,28% 82%,8% 100%,15% 65%,0% 48%,16% 32%);
+z-index:2;transform:rotate(-6deg)
+}
+
+.av-banner-title{
+text-align:center;color:#38bdf8;font-size:15px;font-weight:900;
+letter-spacing:.8px;margin:8px 0;text-transform:uppercase
+}
+
+.av-bet-panel{
+position:relative;background:#262932;border:1px solid #3a3f4d;
+border-radius:14px;padding:12px;margin-bottom:10px
+}
+.av-close-panel{
+position:absolute;right:-6px;top:-6px;width:22px;height:22px;border-radius:50%;
+background:#ef4444;color:#fff;font-size:12px;font-weight:900;
+display:flex;align-items:center;justify-content:center
+}
+.av-toggles-row{
+display:flex;align-items:center;justify-content:space-between;
+gap:10px;margin-bottom:10px;padding-right:16px;flex-wrap:wrap
+}
+.av-check{
+display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+color:#f1f5f9;cursor:pointer
+}
+.av-check input[type="checkbox"]{
+width:16px;height:16px;accent-color:#eab308;cursor:pointer
+}
+.av-auto-mult-input{
+width:66px;background:#14161c;color:#ffd400;border:1px solid #475569;
+border-radius:6px;padding:3px 6px;font-size:12px;font-weight:800;text-align:center
+}
+.av-bet-controls-grid{
+display:grid;grid-template-columns:1fr 122px;gap:10px;align-items:stretch
+}
+.av-stepper-box{
+display:flex;align-items:center;background:#12141a;border:1px solid #334155;
+border-radius:10px;height:44px;margin-bottom:8px;overflow:hidden
+}
+.av-step-btn{
+width:42px;height:100%;background:#eab308;color:#111;font-size:20px;font-weight:900
+}
+.av-amount-input{
+flex:1;width:100%;height:100%;background:transparent;color:#fff;
+text-align:center;font-size:17px;font-weight:900;border:0;outline:none
+}
+.av-presets-row{
+display:grid;grid-template-columns:repeat(4,1fr);gap:6px
+}
+.av-preset-btn{
+background:#eab308;color:#111;font-size:12px;font-weight:900;
+padding:7px 4px;border-radius:7px;box-shadow:0 2px 0 #a16207
+}
+.av-main-bet-btn{
+width:100%;height:100%;min-height:84px;border-radius:12px;
+background:linear-gradient(180deg,#65a30d,#3f6212);color:#fff;
+font-size:18px;font-weight:900;letter-spacing:.5px;
+box-shadow:0 4px 0 #1a2e05;display:flex;flex-direction:column;
+align-items:center;justify-content:center;gap:4px
+}
+.av-main-bet-btn.cashout{
+background:linear-gradient(180deg,#f59e0b,#d97706);
+box-shadow:0 4px 0 #78350f;color:#111
+}
+.av-main-bet-btn.placed{
+background:linear-gradient(180deg,#dc2626,#991b1b);
+box-shadow:0 4px 0 #450a0a
+}
+.av-add-bet-btn{
+width:100%;padding:12px;border-radius:10px;background:#262932;
+color:#e2e8f0;border:1px dashed #475569;font-size:13px;font-weight:800;
+margin-top:4px
+}
+
 .history-header-box{
 background:linear-gradient(135deg,#ff7900,#ff9f1c);padding:18px;
 border-radius:20px;color:#fff;margin-bottom:18px;
@@ -409,6 +590,9 @@ display:flex;align-items:center;gap:8px
 @media(max-width:420px){
 .hero-balance{font-size:27px}
 .image-showcase{height:210px}
+.av-bet-controls-grid{grid-template-columns:1fr 104px;gap:8px}
+.av-countdown{font-size:52px}
+.av-multiplier{font-size:42px}
 }
 </style>
 </head>
@@ -557,6 +741,12 @@ alt="Paiement mobile">
 
 <div class="cards-grid">
 
+<div class="quick-card" onclick="openPage('aviatorPage')">
+<div class="quick-icon">🚀</div>
+<strong>Aviator</strong>
+<small>Vol auto & 2 paris</small>
+</div>
+
 <div class="quick-card" onclick="openPage('investPage')">
 <div class="quick-icon">📈</div>
 <strong>Investir</strong>
@@ -620,8 +810,128 @@ alt="Paiement mobile">
 </div>
 
 <h2 class="section-title">Investissements</h2>
-<p class="section-sub">Choisissez votre plan sur 10 jours</p>
+<p class="section-sub">Choisissez votre plan</p>
 <div id="homePlans"></div>
+
+</section>
+
+<!-- Page Aviator -->
+<section id="aviatorPage" class="page">
+
+<div class="av-topbar">
+<button class="av-back-btn" onclick="openPage('homePage')" title="Retour">←</button>
+<div class="av-wallet-pill">
+<span class="av-wallet-amt" id="avTopBalance">0 F</span>
+<button class="av-wallet-plus" onclick="openPage('rechargePage')" title="Recharger">+</button>
+</div>
+<div class="av-bonus-badge">BONUS</div>
+</div>
+
+<div class="av-history-strip" id="avHistoryStrip">
+<span class="av-hist-chip">X•••</span>
+<span class="av-hist-chip crash-low">x1.00</span>
+<span class="av-hist-chip crash-high">x4.19</span>
+<span class="av-hist-chip crash-low">x1.00</span>
+<span class="av-hist-chip">x2.15</span>
+</div>
+
+<div class="av-sky">
+<div class="av-stars"></div>
+<div class="av-scale">
+<span>x1000</span>
+<span>x500</span>
+<span>x200</span>
+<span>x100</span>
+<span>x10</span>
+</div>
+<div class="av-side-tools">
+<button class="av-tool-btn" onclick="toast('Cote cible 1.20x sur le 1er pari, 1.10x–1.20x dès mise active, jusqu\'à 10x sans mise.')" title="Règles">?</button>
+<button class="av-tool-btn" onclick="toast('Redémarrage automatique en 10 secondes après chaque crash.')" title="Cycle">🕒</button>
+<button class="av-tool-btn" id="avSoundBtn" onclick="toggleAviatorSound()" title="Son">🔇</button>
+</div>
+<div class="av-center-hud">
+<div class="av-countdown hidden" id="avCountdown">10</div>
+<div class="av-multiplier" id="avMultiplier">x1.00</div>
+<div class="av-state-label" id="avStateLabel">PRÊT</div>
+</div>
+<div class="av-promo-burst">x1000</div>
+<div class="av-rocket" id="avRocket">🚀</div>
+<div class="av-launch-pad"></div>
+</div>
+
+<div class="av-banner-title">PLACEZ VOTRE PARI !</div>
+
+<!-- Slot 1 -->
+<div class="av-bet-panel" id="avSlot1Panel">
+<button class="av-close-panel" onclick="resetSlot(0)" title="Réinitialiser">✕</button>
+<div class="av-toggles-row">
+<label class="av-check">
+<input type="checkbox" id="avAutoPlay0">
+<span>Jeu automatique</span>
+</label>
+<label class="av-check">
+<input type="checkbox" id="avAutoCash0" checked>
+<span>Encaissement auto</span>
+<input type="number" id="avAutoMult0" class="av-auto-mult-input" value="1.20" step="0.05" min="1.05">
+</label>
+</div>
+<div class="av-bet-controls-grid">
+<div>
+<div class="av-stepper-box">
+<button class="av-step-btn" onclick="stepBetAmount(0, -100)">−</button>
+<input type="number" id="avAmount0" class="av-amount-input" value="300" min="50">
+<button class="av-step-btn" onclick="stepBetAmount(0, 100)">+</button>
+</div>
+<div class="av-presets-row">
+<button class="av-preset-btn" onclick="setBetPreset(0, 200)">200</button>
+<button class="av-preset-btn" onclick="setBetPreset(0, 400)">400</button>
+<button class="av-preset-btn" onclick="setBetPreset(0, 600)">600</button>
+<button class="av-preset-btn" onclick="setBetPreset(0, 800)">800</button>
+</div>
+</div>
+<button class="av-main-bet-btn" id="avActionBtn0" onclick="handleSlotAction(0)">
+<span>PARI</span>
+</button>
+</div>
+</div>
+
+<!-- Slot 2 -->
+<div class="av-bet-panel" id="avSlot2Panel">
+<button class="av-close-panel" onclick="toggleSecondSlot(false)" title="Masquer">✕</button>
+<div class="av-toggles-row">
+<label class="av-check">
+<input type="checkbox" id="avAutoPlay1">
+<span>Jeu automatique</span>
+</label>
+<label class="av-check">
+<input type="checkbox" id="avAutoCash1" checked>
+<span>Encaissement auto</span>
+<input type="number" id="avAutoMult1" class="av-auto-mult-input" value="1.20" step="0.05" min="1.05">
+</label>
+</div>
+<div class="av-bet-controls-grid">
+<div>
+<div class="av-stepper-box">
+<button class="av-step-btn" onclick="stepBetAmount(1, -100)">−</button>
+<input type="number" id="avAmount1" class="av-amount-input" value="300" min="50">
+<button class="av-step-btn" onclick="stepBetAmount(1, 100)">+</button>
+</div>
+<div class="av-presets-row">
+<button class="av-preset-btn" onclick="setBetPreset(1, 200)">200</button>
+<button class="av-preset-btn" onclick="setBetPreset(1, 400)">400</button>
+<button class="av-preset-btn" onclick="setBetPreset(1, 600)">600</button>
+<button class="av-preset-btn" onclick="setBetPreset(1, 800)">800</button>
+</div>
+</div>
+<button class="av-main-bet-btn" id="avActionBtn1" onclick="handleSlotAction(1)">
+<span>PARI</span>
+</button>
+</div>
+</div>
+
+<button class="av-add-bet-btn" id="avToggleSecondBtn" onclick="toggleSecondSlot()">
+− MASQUER LE 2ÈME PARI
+</button>
 
 </section>
 
@@ -789,7 +1099,7 @@ RETOUR À L'ACCUEIL
 
 <section id="investPage" class="page">
 <h2 class="section-title">Investir</h2>
-<p class="section-sub">Sélectionnez un plan sur 10 jours.</p>
+<p class="section-sub">Sélectionnez un plan.</p>
 <div id="investPlans"></div>
 <button class="btn light" onclick="openPage('purchasesPage')">🛍️ VOIR MES ACHATS</button>
 </section>
@@ -1422,7 +1732,9 @@ function stopGlobalVoiceAssistant() {
 }
 
 function handleVoiceCommand(command) {
-    if (command.includes("recharge") || command.includes("recharger")) {
+    if (command.includes("aviator") || command.includes("avion") || command.includes("fusée")) {
+        openPage("aviatorPage");
+    } else if (command.includes("recharge") || command.includes("recharger")) {
         openPage("rechargePage");
     } else if (command.includes("retour") || command.includes("accueil") || command.includes("home")) {
         openPage("homePage");
@@ -1441,7 +1753,7 @@ function handleVoiceCommand(command) {
     } else if (command.includes("service client") || command.includes("support") || command.includes("aide")) {
         openPage("supportPage");
     } else {
-        toast("Commande non reconnue. Dites 'recharger', 'prêt', 'investir'...");
+        toast("Commande non reconnue. Dites 'aviator', 'recharger', 'prêt', 'investir'...");
     }
 }
 </script>
@@ -1450,7 +1762,7 @@ function handleVoiceCommand(command) {
 
 const PAYMENT_NUMBERS={
 WAVE:"+225 07 87 59 11 84",
-ORANGE:"225 0715500886",
+ORANGE:"",
 MTN:"+225 05 04 03 77 34",
 MOOV:"+225 01 43 09 26 87"
 };
@@ -1465,12 +1777,359 @@ let currentAdminFilter="all";
 let targetCreditUserId=null;
 let calculatedUnlockDate=null;
 
+// -------------------------------------------------------------
+// MOTEUR AUTOMATIQUE AVIATOR (2 paris, boucle 10s, cotes auto)
+// -------------------------------------------------------------
+const avEngine = {
+    phase: "countdown", // "countdown" | "flying" | "crashed"
+    countdownSec: 10,
+    mult: 1.00,
+    crashPoint: 6.50,
+    userBetCount: 0,
+    soundEnabled: false,
+    history: ["x1.00", "x4.19", "x1.00", "x2.15"],
+    slots: [
+        { state: "idle", amount: 300, autoCashout: 1.20, cashedMult: null },
+        { state: "idle", amount: 300, autoCashout: 1.20, cashedMult: null }
+    ],
+    countdownTimer: null,
+    flightTimer: null,
+    restartTimer: null
+};
+
+function computeAutoCrashPoint(hasActiveBet, totalBetAmount, betIndex) {
+    // Aucune mise active : montée haute jusqu'à 5x - 10x
+    if (!hasActiveBet) {
+        return Number((5.0 + Math.random() * 5.0).toFixed(2));
+    }
+    // Premier pari de l'utilisateur : atteint 1.20x
+    if (betIndex === 1) {
+        return 1.20;
+    }
+    // Dès qu'une mise est active sur les tours suivants : crash rapide entre 1.10x et 1.20x
+    return Number((1.10 + Math.random() * 0.10).toFixed(2));
+}
+
+function toggleAviatorSound() {
+    avEngine.soundEnabled = !avEngine.soundEnabled;
+    if ($("avSoundBtn")) {
+        $("avSoundBtn").textContent = avEngine.soundEnabled ? "🔊" : "🔇";
+    }
+    toast(avEngine.soundEnabled ? "Son Aviator activé" : "Son Aviator coupé");
+}
+
+function toggleSecondSlot(forceState) {
+    const panel = $("avSlot2Panel");
+    const btn = $("avToggleSecondBtn");
+    if (!panel || !btn) return;
+    const shouldShow = typeof forceState === "boolean" ? forceState : panel.classList.contains("hidden");
+    panel.classList.toggle("hidden", !shouldShow);
+    btn.textContent = shouldShow ? "− MASQUER LE 2ÈME PARI" : "+ AJOUTER UN PARI";
+}
+
+function resetSlot(idx) {
+    const s = avEngine.slots[idx];
+    if (!s) return;
+    if (s.state === "active") {
+        return toast("Impossible d'annuler pendant le vol.");
+    }
+    s.state = "idle";
+    s.cashedMult = null;
+    if ($(`avAmount${idx}`)) $(`avAmount${idx}`).value = 300;
+    renderAviatorSlots();
+}
+
+function stepBetAmount(idx, delta) {
+    const input = $(`avAmount${idx}`);
+    if (!input) return;
+    const current = Number(input.value || 0);
+    const next = Math.max(50, current + delta);
+    input.value = next;
+    avEngine.slots[idx].amount = next;
+}
+
+function setBetPreset(idx, val) {
+    const input = $(`avAmount${idx}`);
+    if (!input) return;
+    input.value = val;
+    avEngine.slots[idx].amount = val;
+}
+
+function renderAviatorHistory() {
+    const strip = $("avHistoryStrip");
+    if (!strip) return;
+    const chips = [`<span class="av-hist-chip">X•••</span>`];
+    avEngine.history.slice(0, 8).forEach(item => {
+        const num = parseFloat(item.replace("x", ""));
+        let cls = "";
+        if (num <= 1.25) cls = "crash-low";
+        else if (num >= 3.0) cls = "crash-high";
+        chips.push(`<span class="av-hist-chip ${cls}">${item}</span>`);
+    });
+    strip.innerHTML = chips.join("");
+}
+
+function renderAviatorSlots() {
+    const u = typeof getSessionUser === "function" ? getSessionUser() : null;
+    if ($("avTopBalance")) {
+        $("avTopBalance").textContent = `${Number(u ? (u.balance || 0) : 0).toLocaleString("fr-FR")} F`;
+    }
+
+    [0, 1].forEach(idx => {
+        const s = avEngine.slots[idx];
+        const btn = $(`avActionBtn${idx}`);
+        if (!btn) return;
+        btn.classList.remove("cashout", "placed");
+
+        if (s.state === "queued") {
+            btn.classList.add("placed");
+            btn.innerHTML = `<span>PRÊT</span><small style="font-size:11px;opacity:.9">${money(s.amount)}</small>`;
+        } else if (s.state === "active") {
+            btn.classList.add("cashout");
+            const gain = Math.round(s.amount * avEngine.mult);
+            btn.innerHTML = `<span>ENCAISSER</span><small style="font-size:11px;font-weight:900">${money(gain)}</small>`;
+        } else if (s.state === "cashed") {
+            btn.innerHTML = `<span>GAGNÉ</span><small style="font-size:11px">${s.cashedMult.toFixed(2)}x</small>`;
+        } else if (s.state === "lost") {
+            btn.classList.add("placed");
+            btn.innerHTML = `<span>PERDU</span><small style="font-size:11px">CRASH</small>`;
+        } else {
+            btn.innerHTML = `<span>PARI</span>`;
+        }
+    });
+}
+
+async function handleSlotAction(idx) {
+    const s = avEngine.slots[idx];
+    if (!s) return;
+
+    // Encaissement manuel pendant le vol
+    if (s.state === "active" && avEngine.phase === "flying") {
+        s.state = "cashed";
+        s.cashedMult = avEngine.mult;
+        const winAmt = Math.round(s.amount * avEngine.mult);
+        if (typeof window.creditAviatorWin === "function") {
+            await window.creditAviatorWin(winAmt, avEngine.mult);
+        }
+        renderAviatorSlots();
+        toast(`Encaissé à x${avEngine.mult.toFixed(2)} (+${money(winAmt)}) !`);
+        return;
+    }
+
+    if (s.state === "queued" || s.state === "active") {
+        return toast("Mise déjà enregistrée pour ce vol.");
+    }
+
+    const amtInput = $(`avAmount${idx}`);
+    const multInput = $(`avAutoMult${idx}`);
+    const amount = Number(amtInput ? amtInput.value : s.amount);
+    const autoMult = Number(multInput ? multInput.value : s.autoCashout) || 1.20;
+
+    if (!amount || amount < 50) {
+        return toast("Mise minimum : 50 FCFA.");
+    }
+
+    if (typeof window.debitAviatorBet === "function") {
+        const ok = await window.debitAviatorBet(amount);
+        if (!ok) return;
+    }
+
+    avEngine.userBetCount += 1;
+    s.amount = amount;
+    s.autoCashout = autoMult;
+    s.cashedMult = null;
+    s.state = avEngine.phase === "countdown" ? "queued" : "active";
+
+    // Si une mise est placée pendant un vol libre en cours, le crash passe en mode rapide (1.10x - 1.20x)
+    if (avEngine.phase === "flying") {
+        const newCrash = computeAutoCrashPoint(true, amount, avEngine.userBetCount);
+        avEngine.crashPoint = Math.max(Number((avEngine.mult + 0.04).toFixed(2)), newCrash);
+    }
+
+    renderAviatorSlots();
+    toast(`Pari de ${money(amount)} placé !`);
+}
+
+function beginAviatorCountdown(seconds = 3) {
+    clearInterval(avEngine.countdownTimer);
+    clearInterval(avEngine.flightTimer);
+    clearTimeout(avEngine.restartTimer);
+
+    avEngine.phase = "countdown";
+    avEngine.countdownSec = seconds;
+    avEngine.mult = 1.00;
+
+    // Auto-réactivation des mises si "Jeu automatique" est coché
+    [0, 1].forEach(idx => {
+        const autoPlay = $(`avAutoPlay${idx}`)?.checked;
+        const amt = Number($(`avAmount${idx}`)?.value || avEngine.slots[idx].amount);
+        if (avEngine.slots[idx].state !== "queued") {
+            avEngine.slots[idx].state = "idle";
+            avEngine.slots[idx].cashedMult = null;
+        }
+        if (autoPlay && avEngine.slots[idx].state === "idle" && amt >= 50) {
+            if (typeof window.debitAviatorBet === "function") {
+                window.debitAviatorBet(amt).then(ok => {
+                    if (ok) {
+                        avEngine.userBetCount += 1;
+                        avEngine.slots[idx].amount = amt;
+                        avEngine.slots[idx].state = "queued";
+                        renderAviatorSlots();
+                    }
+                });
+            }
+        }
+    });
+
+    const cdEl = $("avCountdown");
+    const multEl = $("avMultiplier");
+    const stateEl = $("avStateLabel");
+    const rocketEl = $("avRocket");
+
+    if (rocketEl) rocketEl.style.transform = "translate(0px, 0px) rotate(-20deg)";
+    if (cdEl) {
+        cdEl.classList.remove("hidden");
+        cdEl.textContent = String(avEngine.countdownSec);
+    }
+    if (multEl) {
+        multEl.classList.add("hidden");
+        multEl.classList.remove("crashed");
+    }
+    if (stateEl) stateEl.textContent = "DÉCOLLAGE IMMINENT";
+    renderAviatorSlots();
+
+    avEngine.countdownTimer = setInterval(() => {
+        avEngine.countdownSec -= 1;
+        if (avEngine.countdownSec > 0) {
+            if (cdEl) cdEl.textContent = String(avEngine.countdownSec);
+        } else {
+            clearInterval(avEngine.countdownTimer);
+            launchAviatorRocket();
+        }
+    }, 1000);
+}
+
+function launchAviatorRocket() {
+    clearInterval(avEngine.flightTimer);
+    avEngine.phase = "flying";
+    avEngine.mult = 1.00;
+
+    let hasActiveBet = false;
+    let totalBet = 0;
+
+    [0, 1].forEach(idx => {
+        const s = avEngine.slots[idx];
+        const autoCashChecked = $(`avAutoCash${idx}`)?.checked;
+        const targetVal = Number($(`avAutoMult${idx}`)?.value || s.autoCashout) || 1.20;
+        s.autoCashout = targetVal;
+        if (s.state === "queued") {
+            s.state = "active";
+            hasActiveBet = true;
+            totalBet += s.amount;
+        } else if (s.state === "active") {
+            hasActiveBet = true;
+            totalBet += s.amount;
+        }
+    });
+
+    avEngine.crashPoint = computeAutoCrashPoint(hasActiveBet, totalBet, avEngine.userBetCount);
+
+    const cdEl = $("avCountdown");
+    const multEl = $("avMultiplier");
+    const stateEl = $("avStateLabel");
+    const rocketEl = $("avRocket");
+
+    if (cdEl) cdEl.classList.add("hidden");
+    if (multEl) {
+        multEl.classList.remove("hidden", "crashed");
+        multEl.textContent = "x1.00";
+    }
+    if (stateEl) {
+        stateEl.textContent = hasActiveBet ? "EN VOL — PARI ACTIF" : "EN VOL LIBRE (JUSQU'À 10x)";
+    }
+    renderAviatorSlots();
+
+    avEngine.flightTimer = setInterval(() => {
+        avEngine.mult = Number((avEngine.mult + 0.02).toFixed(2));
+        if (multEl) multEl.textContent = `x${avEngine.mult.toFixed(2)}`;
+
+        if (rocketEl) {
+            const p = Math.min((avEngine.mult - 1) / 3.5, 1);
+            const tx = Math.round(p * 145);
+            const ty = -Math.round(p * 115);
+            rocketEl.style.transform = `translate(${tx}px, ${ty}px) rotate(-32deg)`;
+        }
+
+        // Encaissement automatique pour chaque pari actif
+        [0, 1].forEach(async idx => {
+            const s = avEngine.slots[idx];
+            const autoCashChecked = $(`avAutoCash${idx}`)?.checked;
+            if (
+                s.state === "active" &&
+                autoCashChecked &&
+                avEngine.mult >= s.autoCashout &&
+                avEngine.mult < avEngine.crashPoint
+            ) {
+                s.state = "cashed";
+                s.cashedMult = s.autoCashout;
+                const winAmt = Math.round(s.amount * s.autoCashout);
+                if (typeof window.creditAviatorWin === "function") {
+                    await window.creditAviatorWin(winAmt, s.autoCashout);
+                }
+                renderAviatorSlots();
+                toast(`Encaissement auto à x${s.autoCashout.toFixed(2)} (+${money(winAmt)}) !`);
+            }
+        });
+
+        renderAviatorSlots();
+
+        // Crash de la fusée
+        if (avEngine.mult >= avEngine.crashPoint) {
+            clearInterval(avEngine.flightTimer);
+            avEngine.phase = "crashed";
+            const finalCrash = avEngine.crashPoint.toFixed(2);
+
+            if (multEl) {
+                multEl.textContent = `x${finalCrash}`;
+                multEl.classList.add("crashed");
+            }
+            if (rocketEl) {
+                rocketEl.style.transform = "translate(150px, -110px) rotate(45deg) scale(0.85)";
+            }
+
+            [0, 1].forEach(idx => {
+                if (avEngine.slots[idx].state === "active") {
+                    avEngine.slots[idx].state = "lost";
+                }
+            });
+
+            avEngine.history.unshift(`x${finalCrash}`);
+            renderAviatorHistory();
+            renderAviatorSlots();
+
+            // Redémarrage automatique en 10 secondes maximum
+            let waitSec = 10;
+            if (stateEl) stateEl.textContent = `CRASH x${finalCrash} — REPRISE DANS ${waitSec}s`;
+
+            avEngine.restartTimer = setInterval(() => {
+                waitSec -= 1;
+                if (waitSec > 0) {
+                    if (stateEl) stateEl.textContent = `CRASH x${finalCrash} — REPRISE DANS ${waitSec}s`;
+                } else {
+                    clearInterval(avEngine.restartTimer);
+                    beginAviatorCountdown(3);
+                }
+            }, 1000);
+        }
+    }, 75);
+}
+
 const plans=[
-{id:"VIP1",name:"VIP 1",amount:5000,daily:2000,days:10,total:20000},
-{id:"VIP2",name:"VIP 2",amount:10000,daily:4000,days:10,total:40000},
-{id:"VIP3",name:"VIP 3",amount:20000,daily:6000,days:10,total:60000},
-{id:"VIP4",name:"VIP 4",amount:50000,daily:8000,days:10,total:80000},
-{id:"VIP5",name:"VIP 5",amount:100000,daily:14000,days:10,total:140000}
+{id:"VIP1",name:"VIP 1",amount:5000,daily:1300,days:31},
+{id:"VIP2",name:"VIP 2",amount:10000,daily:2500,days:31},
+{id:"VIP3",name:"VIP 3",amount:20000,daily:3500,days:31},
+{id:"VIP5",name:"VIP 5",amount:50000,daily:5000,days:31},
+{id:"VIP6",name:"VIP 6",amount:100000,daily:10000,days:31}
 ];
 
 const $=id=>document.getElementById(id);
@@ -1568,7 +2227,11 @@ renderWithdrawHistory();
 renderPurchases();
 renderLinkedAccount();
 renderVaultHistory();
+renderAviatorHistory();
 startImageSlider();
+if (avEngine.phase === "countdown" && !avEngine.countdownTimer && !avEngine.flightTimer) {
+    beginAviatorCountdown(3);
+}
 
 const savedPage = sessionStorage.getItem('coca_active_page') || 'homePage';
 openPage(savedPage);
@@ -1598,6 +2261,7 @@ $("withdrawBalance").textContent=money(b);
 $("homeVaultBalance").textContent=money(v);
 $("vaultBalanceDisplay").textContent=money(v);
 $("vaultAvailableBalance").textContent=money(b);
+if($("avTopBalance")) $("avTopBalance").textContent = `${b.toLocaleString("fr-FR")} F`;
 
 $("homeUserName").textContent="Bonjour "+u.name;
 $("topUser").textContent=u.name.charAt(0).toUpperCase();
@@ -1688,6 +2352,11 @@ renderLinkedAccount();
 if(pageId==="vaultPage"){
 updateUI();
 renderVaultHistory();
+}
+
+if(pageId==="aviatorPage"){
+renderAviatorHistory();
+renderAviatorSlots();
 }
 
 }
@@ -1902,7 +2571,7 @@ const html=plans.map(p=>`
 
 <div class="plan-name">${p.name}</div>
 
-<div class="vip">PLAN 10 JOURS</div>
+<div class="vip">PLAN</div>
 
 </div>
 
@@ -1919,11 +2588,6 @@ const html=plans.map(p=>`
 <div class="plan-row">
 <span>Durée</span>
 <strong>${p.days} jours</strong>
-</div>
-
-<div class="plan-row">
-<span>Total cumulé</span>
-<strong>${money(p.total ?? p.daily * p.days)}</strong>
 </div>
 
 <button class="btn red" onclick="investPlan('${p.id}')">
@@ -2075,7 +2739,8 @@ WAVE:"Wave Money",
 ORANGE:"Orange Money",
 MTN:"MTN Money",
 MOOV:"Moov Money",
-ADMIN:"Ajustement Admin"
+ADMIN:"Ajustement Admin",
+AVIATOR:"Aviator"
 }[m]||m;
 
 }
@@ -2605,6 +3270,36 @@ window.getAllTransactions=()=>S.txs;
 window.getPurchases=()=>S.purchases;
 window.getVaultTransactions=()=>S.vaultTxs;
 
+window.debitAviatorBet = async function(amount) {
+    if (!S.user) return false;
+    try {
+        const res = await runTransaction(
+            ref(db, "users/" + S.user.id + "/balance"),
+            b => (Number(b || 0) >= amount) ? Number(b || 0) - amount : undefined
+        );
+        if (!res.committed) {
+            toast("Solde insuffisant pour cette mise.");
+            return false;
+        }
+        return true;
+    } catch (e) {
+        toast("Erreur de solde : " + msg(e));
+        return false;
+    }
+};
+
+window.creditAviatorWin = async function(winAmount, mult) {
+    if (!S.user || !winAmount) return;
+    try {
+        await runTransaction(
+            ref(db, "users/" + S.user.id + "/balance"),
+            b => Number(b || 0) + Number(winAmount)
+        );
+    } catch (e) {
+        console.error("Erreur gain Aviator :", e);
+    }
+};
+
 function updateRegisteredCountDisplay(count) {
 const counterEl = $("registeredCount");
 if (!counterEl) return;
@@ -2630,6 +3325,7 @@ renderWithdrawHistory();
 renderPurchases();
 renderLinkedAccount();
 renderVaultHistory();
+renderAviatorSlots();
 
 }
 
@@ -2855,7 +3551,6 @@ window.investPlan = async function(planId) {
             daily: plan.daily,
             days: plan.days,
             daysRemaining: plan.days,
-            total: plan.total ?? (plan.daily * plan.days),
             status: "Actif",
             date: now(),
             lastCreditedDate: now()
