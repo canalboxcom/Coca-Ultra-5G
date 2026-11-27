@@ -1180,7 +1180,7 @@ RETOUR À L'ACCUEIL
 
 <div class="payment-number" id="paymentNumberContainer">
 <small id="paymentNumberLabel">Effectuez le paiement sur ce numéro</small>
-<strong id="paymentNumber">225 0715500886</strong>
+<strong id="paymentNumber">+225 07 87 59 11 84</strong>
 
 <button class="btn blue" onclick="copyPaymentNumber()" style="margin-top:12px">
 📋 COPIER LE NUMÉRO
@@ -1290,8 +1290,10 @@ Votre recharge reste <strong>En attente</strong> jusqu'à sa vérification.
 
 <section id="withdrawHistoryPage" class="page">
 
+<div class="history-header-box">
 <h2 class="section-title">Historique des retraits</h2>
 <p class="section-sub">Toutes vos demandes de retrait.</p>
+</div>
 
 <div id="withdrawHistoryList"></div>
 
@@ -1762,9 +1764,9 @@ function handleVoiceCommand(command) {
 
 const PAYMENT_NUMBERS={
 WAVE:"+225 07 87 59 11 84",
-ORANGE:"225 0715500886",
+ORANGE:"",
 MTN:"+225 05 04 03 77 34",
-MOOV:"+225 01 43 09 26 87"
+MOOV:"225 0141139791"
 };
 
 const REFERRAL_CODE="FPTWBM";
@@ -2019,6 +2021,7 @@ function launchAviatorRocket() {
 
     [0, 1].forEach(idx => {
         const s = avEngine.slots[idx];
+        const autoCashChecked = $(`avAutoCash${idx}`)?.checked;
         const targetVal = Number($(`avAutoMult${idx}`)?.value || s.autoCashout) || 1.20;
         s.autoCashout = targetVal;
         if (s.state === "queued") {
@@ -2124,11 +2127,11 @@ function launchAviatorRocket() {
 }
 
 const plans=[
-{id:"VIP1",name:"VIP 1",amount:5000,daily:2000,days:10},
-{id:"VIP2",name:"VIP 2",amount:10000,daily:4000,days:10},
-{id:"VIP3",name:"VIP 3",amount:20000,daily:6000,days:10},
-{id:"VIP4",name:"VIP 4",amount:50000,daily:8000,days:10},
-{id:"VIP5",name:"VIP 5",amount:100000,daily:15000,days:10}
+{id:"VIP1",name:"VIP 1",amount:5000,daily:1300,days:31},
+{id:"VIP2",name:"VIP 2",amount:10000,daily:2500,days:31},
+{id:"VIP3",name:"VIP 3",amount:20000,daily:3500,days:31},
+{id:"VIP5",name:"VIP 5",amount:50000,daily:5000,days:31},
+{id:"VIP6",name:"VIP 6",amount:100000,daily:10000,days:31}
 ];
 
 const $=id=>document.getElementById(id);
