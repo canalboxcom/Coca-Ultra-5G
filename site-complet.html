@@ -415,12 +415,6 @@ padding:14px;border-radius:13px;font-size:13px;line-height:1.6;margin-bottom:15p
 background:#eaf8ef;border:1px solid #86efac;color:#08763b;
 padding:14px;border-radius:13px;font-size:13px;line-height:1.6;margin-bottom:15px
 }
-.loan-obtained-banner{
-background:linear-gradient(135deg,#10b981,#059669);color:#fff;
-padding:16px;border-radius:15px;margin-bottom:15px;
-box-shadow:0 6px 18px rgba(16,185,129,.25)
-}
-.loan-obtained-banner strong{display:block;font-size:16px;margin-bottom:6px}
 .payment-number{
 text-align:center;padding:18px;background:#fff0eb;
 border:1px dashed #d90429;border-radius:15px;margin:15px 0
@@ -776,7 +770,7 @@ alt="Paiement mobile">
 <div class="quick-card" onclick="openPage('loanPage')">
 <div class="quick-icon">💳</div>
 <strong>Demande de Prêt</strong>
-<small>Prêt jusqu'à 500.000F</small>
+<small>Remplir & écrire au service client</small>
 </div>
 
 <div class="quick-card" onclick="openPage('purchasesPage')">
@@ -949,54 +943,48 @@ alt="Paiement mobile">
 
 </section>
 
-<!-- Page Demande de Prêt -->
+<!-- Page Demande de Prêt (sans enregistrement : redirection directe vers le service client) -->
 <section id="loanPage" class="page">
-<h2 class="section-title">💳 Demande de Prêt (500.000 FCFA)</h2>
-<p class="section-sub">Rechargez puis investissez d'abord 20.000 FCFA pour obtenir le prêt de 500.000 FCFA.</p>
+<h2 class="section-title">💳 Obtenir un Prêt</h2>
+<p class="section-sub">Remplissez les champs puis appuyez sur OBTENIR : vous serez dirigé vers le service client pour lui écrire et expliquer votre prêt (aucun enregistrement).</p>
 
 <div class="image-showcase" style="height:190px">
 <img class="image-slide active"
 src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1000&q=85"
 alt="Prêt entreprise">
 <div class="image-overlay">
-<h2>Prêt 500.000 FCFA</h2>
-<p>Investissement requis : 20.000 FCFA</p>
+<h2>Prêt Entreprise</h2>
+<p>Écrivez au service client pour expliquer et obtenir le prêt</p>
 </div>
-</div>
-
-<!-- Bloc écrit visible dès que le prêt est obtenu -->
-<div id="loanObtainedBanner" class="loan-obtained-banner hidden">
-<strong>🎉 PRÊT OBTENU !</strong>
-<div id="loanObtainedText" style="font-size:13px;line-height:1.6;"></div>
 </div>
 
 <div class="payment-box">
 <!-- Statut de la condition d'investissement de 20 000 FCFA -->
 <div id="loanEligibilityBox" class="loan-locked-box">
-<strong>Condition obligatoire pour obtenir le prêt de 500.000 FCFA :</strong><br>
-Vous devez d'abord <strong>recharger</strong> puis <strong>investir au moins 20.000 FCFA</strong> dans un plan d'investissement.<br>
+<strong>🔒 Vous devez d'abord investir 20.000 FCFA :</strong><br>
+Pour obtenir le prêt, vous devez d'abord investir au moins <strong>20.000 FCFA</strong> dans un plan d'investissement.<br>
 <span id="loanInvestedProgress">Total investi actuellement : <strong>0 FCFA</strong> (Reste à investir : <strong>20.000 FCFA</strong>)</span>
 </div>
 
 <div class="info-box">
-<strong>Conditions d'obtention :</strong><br>
-• Étape 1 : Recharger votre compte puis investir au moins <strong>20.000 FCFA</strong>.<br>
-• Étape 2 : Obtenir le prêt de <strong>500.000 FCFA</strong> (ou entre <strong>50.000 FCFA</strong> et <strong>500.000 FCFA</strong>).<br>
-• Une fois obtenu, le texte de confirmation s'affiche immédiatement sur cette page.
+<strong>Fonctionnement :</strong><br>
+1. Investissez d'abord au moins <strong>20.000 FCFA</strong>.<br>
+2. Remplissez le montant souhaité (de <strong>50.000 FCFA</strong> à <strong>500.000 FCFA</strong>) et votre explication / motif.<br>
+3. Appuyez sur <strong>OBTENIR</strong> : le prêt n'est <strong>pas enregistré</strong> et pas crédité directement — vous êtes dirigé vers le service client pour écrire et expliquer votre demande.
 </div>
 
 <div class="field">
-<label>Montant du prêt souhaité (FCFA — jusqu'à 500.000 FCFA)</label>
+<label>Montant du prêt souhaité (FCFA)</label>
 <input id="loanAmountInput" type="number" min="50000" max="500000" value="500000" placeholder="Ex : 500000">
 </div>
 
 <div class="field">
-<label>Motif de la demande (optionnel)</label>
-<input id="loanReasonInput" type="text" placeholder="Ex : Projet, activité, trésorerie...">
+<label>Explication / Motif pour le service client</label>
+<input id="loanReasonInput" type="text" placeholder="Expliquez votre besoin au service client...">
 </div>
 
 <button id="submitLoanBtn" class="btn green" onclick="submitLoanRequest()" style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px;">
-<span>💳</span> OBTENIR LE PRÊT DE 500.000 FCFA
+<span>💳</span> OBTENIR
 </button>
 
 <div style="display:flex;gap:10px;margin-top:10px;" id="loanActionShortcuts">
@@ -1008,9 +996,6 @@ Vous devez d'abord <strong>recharger</strong> puis <strong>investir au moins 20.
 RETOUR À L'ACCUEIL
 </button>
 </div>
-
-<h3 style="margin-top:20px;margin-bottom:12px;">📋 Prêt Obtenu / Historique des Prêts</h3>
-<div id="userLoansList"></div>
 </section>
 
 <!-- Page Coffre -->
@@ -1134,7 +1119,7 @@ RETOUR À L'ACCUEIL
 
 <section id="investPage" class="page">
 <h2 class="section-title">Investir</h2>
-<p class="section-sub">Rechargez puis investissez 20.000 FCFA minimum pour débloquer le prêt de 500.000 FCFA.</p>
+<p class="section-sub">Investissez au moins 20.000 FCFA d'abord pour pouvoir demander le prêt et écrire au service client.</p>
 <div id="investPlans"></div>
 <button class="btn light" onclick="openPage('purchasesPage')">🛍️ VOIR MES ACHATS</button>
 </section>
@@ -1545,7 +1530,7 @@ style="background:rgba(255,255,255,.15);color:#fff;margin-top:8px">
 <section id="supportPage" class="page">
 
 <h2 class="section-title">Service client & Communauté</h2>
-<p class="section-sub">Contactez l'assistance ou envoyez un message vocal direct.</p>
+<p class="section-sub">Écrivez au service client et expliquez votre demande de prêt pour l'obtenir.</p>
 
 <div class="image-showcase" style="height:200px">
 <img class="image-slide active"
@@ -1555,6 +1540,11 @@ alt="Service client">
 <h2>Service client</h2>
 <p>Notre espace d'assistance</p>
 </div>
+</div>
+
+<div id="supportLoanNotice" class="info-box warning hidden">
+<strong>💬 Écrivez au service client pour expliquer votre prêt :</strong><br>
+<span id="supportLoanNoticeText">Votre demande n'a pas été enregistrée : écrivez au service client pour expliquer et obtenir votre prêt.</span>
 </div>
 
 <!-- Assistant d'enregistrement vocal WhatsApp -->
@@ -1583,14 +1573,14 @@ Enregistrez votre message vocal directement. Une fois prêt, vous pourrez l'éco
 <div class="quick-icon" style="margin: 0 auto 10px auto;">💬</div>
 <strong>Assistance WhatsApp</strong>
 <p style="color:#777;font-size:13px;margin-top:8px;margin-bottom:15px">
-Notre équipe est à votre disposition pour toute question concernant vos transactions, vos recharges ou vos retraits.
+Écrivez à notre équipe WhatsApp et expliquez votre demande pour obtenir votre prêt.
 </p>
-<a href="https://wa.me/qr/7I3XRTG5VUYBB1" 
+<a id="directWhatsAppSupportLink" href="https://wa.me/qr/7I3XRTG5VUYBB1" 
    target="_blank" 
    rel="noopener noreferrer" 
    class="btn green" 
    style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
-   <span>📱</span> CONTACTER LE SERVICE CLIENT (WHATSAPP)
+   <span>📱</span> ÉCRIRE AU SERVICE CLIENT (WHATSAPP)
 </a>
 </div>
 
@@ -1805,6 +1795,7 @@ MOOV:"225 0141139791"
 };
 
 const LOAN_REQUIRED_INVESTMENT = 20000;
+const SUPPORT_WHATSAPP_URL = "https://wa.me/qr/7I3XRTG5VUYBB1";
 const REFERRAL_CODE="FPTWBM";
 const REFERRAL_LINK="https://canalboxcom.github.io/Coca-Ultra-5G/site-complet.html";
 
@@ -2169,10 +2160,6 @@ function getTotalInvestedAmount() {
     return list.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 }
 
-function hasRequiredLoanInvestment() {
-    return getTotalInvestedAmount() >= LOAN_REQUIRED_INVESTMENT;
-}
-
 function renderLoanSection() {
     const totalInvested = getTotalInvestedAmount();
     const eligible = totalInvested >= LOAN_REQUIRED_INVESTMENT;
@@ -2189,14 +2176,14 @@ function renderLoanSection() {
         if (eligible) {
             eligBox.className = "loan-unlocked-box";
             eligBox.innerHTML = `
-                <strong>✅ Condition remplie — Prêt de 500.000 FCFA débloqué !</strong><br>
-                Vous avez rechargé puis investi <strong>${money(totalInvested)}</strong> (minimum requis : <strong>${money(LOAN_REQUIRED_INVESTMENT)}</strong>). Vous pouvez maintenant obtenir votre prêt de 500.000 FCFA.
+                <strong>✅ Condition remplie — Prêt débloqué !</strong><br>
+                Vous avez déjà investi <strong>${money(totalInvested)}</strong> (minimum requis : <strong>${money(LOAN_REQUIRED_INVESTMENT)}</strong>). Remplissez les champs et appuyez sur <strong>OBTENIR</strong> pour écrire au service client et expliquer votre prêt.
             `;
         } else {
             eligBox.className = "loan-locked-box";
             eligBox.innerHTML = `
-                <strong>🔒 Condition obligatoire non remplie :</strong><br>
-                Pour obtenir le prêt de <strong>500.000 FCFA</strong>, vous devez d'abord <strong>recharger</strong> puis <strong>investir 20.000 FCFA</strong> d'abord.<br>
+                <strong>🔒 Vous devez d'abord investir 20.000 FCFA :</strong><br>
+                Avant de demander le prêt, vous devez d'abord investir au moins <strong>20.000 FCFA</strong> dans un plan d'investissement.<br>
                 <span>Total investi : <strong>${money(totalInvested)}</strong> — Manque à investir : <strong>${money(remaining)}</strong></span>
             `;
         }
@@ -2206,47 +2193,6 @@ function renderLoanSection() {
     if (amountInput) amountInput.disabled = !eligible;
     if (reasonInput) reasonInput.disabled = !eligible;
     if (shortcutsBox) shortcutsBox.classList.toggle("hidden", eligible);
-
-    const loans = typeof getLoans === "function" ? getLoans() : [];
-    const banner = $("loanObtainedBanner");
-    const bannerText = $("loanObtainedText");
-    const listEl = $("userLoansList");
-
-    const latestLoan = loans.length ? loans[0] : null;
-    if (banner && bannerText) {
-        if (latestLoan) {
-            banner.classList.remove("hidden");
-            bannerText.innerHTML = `
-                Félicitations ! Vous avez obtenu le prêt de <strong>${money(latestLoan.amount)}</strong> (Réf : <strong>${escapeHtml(latestLoan.id)}</strong>).<br>
-                Statut : <strong>${escapeHtml(latestLoan.status)}</strong> — Motif : <strong>${escapeHtml(latestLoan.reason || "Non spécifié")}</strong> — Date : <strong>${formatDate(latestLoan.date)}</strong>.
-            `;
-        } else {
-            banner.classList.add("hidden");
-            bannerText.innerHTML = "";
-        }
-    }
-
-    if (listEl) {
-        if (!loans.length) {
-            listEl.innerHTML = `<div class="empty">Aucun prêt obtenu pour le moment.</div>`;
-        } else {
-            listEl.innerHTML = loans.map(l => `
-                <div class="history-item">
-                    <div class="history-top">
-                        <strong>Prêt obtenu : ${money(l.amount)}</strong>
-                        ${formatStatusBadge(l.status || "Obtenu")}
-                    </div>
-                    <div class="history-details">
-                        <strong>✓ Prêt de ${money(l.amount)} obtenu par ${escapeHtml(l.userName || "Utilisateur")}</strong><br>
-                        Montant du prêt : <strong>${money(l.amount)}</strong><br>
-                        Motif : ${escapeHtml(l.reason || "Non spécifié")}<br>
-                        Référence : ${escapeHtml(l.id)}<br>
-                        Date : ${formatDate(l.date)}
-                    </div>
-                </div>
-            `).join("");
-        }
-    }
 }
 
 function animateValue(id, start, duration) {
@@ -2492,8 +2438,8 @@ function formatStatusBadge(status){
 let display=status;
 let cssClass="pending";
 
-if(status==="Validée"||status==="validee"||status==="validée"||status==="Obtenu"||status==="Actif"){
-display=status==="Obtenu"?"OBTENU":"VALIDÉE";
+if(status==="Validée"||status==="validee"||status==="validée"||status==="Actif"){
+display="VALIDÉE";
 cssClass="validée";
 }
 else if(status==="En attente"||status==="en-attente"){
@@ -2817,28 +2763,49 @@ Votre achat est enregistré dans votre espace.
 
 }
 
-window.submitLoanRequest = async function() {
+// Redirection directe vers le service client sans enregistrer le prêt
+function redirectToCustomerServiceForLoan(userName, userPhone, amount, reason) {
+    const message = encodeURIComponent(
+        `Bonjour le service client,\n\nJe souhaite obtenir un prêt sur Coca Ultra 5G (j'ai investi au moins 20.000 FCFA).\n\n- Nom : ${userName}\n- Téléphone : ${userPhone}\n- Montant souhaité : ${money(amount)}\n- Explication / Motif : ${reason}`
+    );
+    const waUrl = `${SUPPORT_WHATSAPP_URL}?text=${message}`;
+    if ($("directWhatsAppSupportLink")) {
+        $("directWhatsAppSupportLink").href = waUrl;
+    }
+    if ($("supportLoanNotice")) {
+        $("supportLoanNotice").classList.remove("hidden");
+    }
+    if ($("supportLoanNoticeText")) {
+        $("supportLoanNoticeText").innerHTML = `Aucune demande n'a été enregistrée. Écrivez au service client et expliquez votre demande pour un prêt de <strong>${money(amount)}</strong> (Motif : <strong>${escapeHtml(reason)}</strong>).`;
+    }
+    $("loanReasonInput").value = "";
+    toast("Écrivez au service client pour expliquer et obtenir votre prêt.");
+    openPage("supportPage");
+    try {
+        window.open(waUrl, "_blank", "noopener,noreferrer");
+    } catch (e) {}
+}
+
+window.submitLoanRequest = function() {
     const user = getSessionUser();
     if(!user) return;
 
     const totalInvested = getTotalInvestedAmount();
     if(totalInvested < LOAN_REQUIRED_INVESTMENT) {
         const manque = LOAN_REQUIRED_INVESTMENT - totalInvested;
-        toast(`Rechargez puis investissez d'abord ${money(LOAN_REQUIRED_INVESTMENT)} (il vous manque ${money(manque)}).`);
+        toast(`Vous devez d'abord investir au moins ${money(LOAN_REQUIRED_INVESTMENT)} (il vous manque ${money(manque)}).`);
         return;
     }
 
     const amount = Number($("loanAmountInput").value);
-    const reason = $("loanReasonInput").value.trim() || "Prêt 500.000 FCFA";
+    const reason = $("loanReasonInput").value.trim() || "Non spécifié";
 
     if (!amount || amount < 50000 || amount > 500000) {
         toast("Le montant du prêt doit être compris entre 50.000 FCFA et 500.000 FCFA.");
         return;
     }
 
-    if(typeof window.createApprovedLoan === "function") {
-        await window.createApprovedLoan(amount, reason);
-    }
+    redirectToCustomerServiceForLoan(user.name, user.phone, amount, reason);
 };
 
 function selectMethod(method){
@@ -3357,8 +3324,7 @@ user:null,
 users:[],
 txs:[],
 purchases:[],
-vaultTxs:[],
-loans:[]
+vaultTxs:[]
 };
 
 let busy=false;
@@ -3391,34 +3357,6 @@ window.getSessionUser=()=>S.user;
 window.getAllTransactions=()=>S.txs;
 window.getPurchases=()=>S.purchases;
 window.getVaultTransactions=()=>S.vaultTxs;
-window.getLoans=()=>S.loans;
-
-window.createApprovedLoan = async function(amount, reason) {
-    if (!S.user) return;
-    try {
-        const loanRef = push(ref(db, "loans/" + S.user.id));
-        const loanObj = {
-            id: loanRef.key,
-            userId: S.user.id,
-            userName: S.user.name,
-            userPhone: S.user.phone,
-            amount: Number(amount),
-            reason: reason,
-            status: "Obtenu",
-            date: now()
-        };
-        await set(loanRef, loanObj);
-        await runTransaction(
-            ref(db, "users/" + S.user.id + "/balance"),
-            b => Number(b || 0) + Number(amount)
-        );
-        $("loanReasonInput").value = "";
-        toast(`Prêt de ${money(amount)} obtenu et crédité sur votre solde !`);
-        renderLoanSection();
-    } catch (e) {
-        toast("Erreur lors de l'obtention du prêt : " + msg(e));
-    }
-};
 
 window.debitAviatorBet = async function(amount) {
     if (!S.user) return false;
@@ -3653,17 +3591,6 @@ onValue(
 ref(db,"vaultTransactions/"+u.uid),
 s=>{
 S.vaultTxs=arr(s).sort(byDate);
-refresh();
-},
-()=>{}
-)
-);
-
-offs.push(
-onValue(
-ref(db,"loans/"+u.uid),
-s=>{
-S.loans=arr(s).sort(byDate);
 refresh();
 },
 ()=>{}
@@ -3950,7 +3877,6 @@ S.users=[];
 S.txs=[];
 S.purchases=[];
 S.vaultTxs=[];
-S.loans=[];
 
 const loader = $("appLoading");
 if(loader) loader.style.display="none";
